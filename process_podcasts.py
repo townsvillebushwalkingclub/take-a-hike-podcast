@@ -461,6 +461,7 @@ YOUTUBE METADATA REQUIREMENTS:
         
         # Step 2: Generate blog post and YouTube metadata in one API call
         if not episode_data["blog_title"] or not episode_data["youtube_title"]:
+            print(f"Generating blog post and YouTube metadata for episode: {episode_key}...")
             content_data = self.generate_episode_content(episode_data["transcript"], episode_key)
             episode_data["blog_title"] = content_data["blog_title"]
             episode_data["blog_excerpt"] = content_data["blog_excerpt"]
@@ -514,7 +515,9 @@ YOUTUBE METADATA REQUIREMENTS:
         
         print(f"Found {len(audio_files)} podcast episodes to process\n")
         
-        for audio_file in audio_files:
+        for idx, audio_file in enumerate(audio_files, start=1):
+            episode_name = os.path.basename(audio_file)
+            print(f"{idx}/{len(audio_files)} Processing {episode_name}\n")
             try:
                 self.process_episode(audio_file, upload_to_youtube=upload_to_youtube)
             except Exception as e:

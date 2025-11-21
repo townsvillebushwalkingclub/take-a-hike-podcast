@@ -2,7 +2,7 @@
 
 A comprehensive processing pipeline for the "Take A Hike" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates the transcription, blog post generation, video creation, and YouTube upload workflow for podcast episodes.
 
-Find the audio files from the podcast: https://drive.google.com/drive/folders/1g2efA-Rw0RiuZEYKuO2ItKbOy30V2nMH?usp=drive_link
+Find the audio files from the podcast: <https://drive.google.com/drive/folders/1g2efA-Rw0RiuZEYKuO2ItKbOy30V2nMH?usp=drive_link>
 
 ## Overview
 
