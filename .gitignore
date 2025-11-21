@@ -137,6 +137,7 @@ celerybeat.pid
 # Environments
 .env
 .envrc
+.env.local
 .venv
 env/
 venv/
@@ -205,3 +206,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Project-specific files
+podcasts_data.json
+youtube_token.json
+youtube_credentials.json
+client_secret.json
+temp_portrait.jpg
+*.mp3
+*.mp4
+!videos/.gitkeep

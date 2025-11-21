@@ -1,0 +1,10 @@
+whisper-timestamped>=1.15.9
+google-genai==1.52.0
+google-api-python-client>=2.187.0
+google-auth-httplib2>=0.2.1
+google-auth-oauthlib>=1.2.3
+moviepy>=2.2.1
+pillow>=11.3.0
+openai-whisper>=20250625
+python-dotenv>=1.2.1
+pydantic>=2.10.1
