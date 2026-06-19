@@ -164,10 +164,6 @@ YouTube has daily upload limits. The script:
 
 This project was created for the Townsville Bushwalking Club's "Take A Hike" podcast processing needs.
 
-## License
-
-[Add license information here]
-
 ## Credits
 
 - **Podcast**: Take A Hike - A LiSTNR production
