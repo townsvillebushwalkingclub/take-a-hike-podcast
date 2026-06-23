@@ -1,28 +1,35 @@
 # Take A Hike Podcast
 
-A comprehensive processing pipeline for the "Take A Hike" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates the transcription, blog post generation, video creation, and YouTube upload workflow for podcast episodes.
+A processing pipeline for the "Take A Hike" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates transcription, blog post generation, video creation, and YouTube upload for podcast episodes.
 
 Find the audio files from the podcast: <https://drive.google.com/drive/folders/1g2efA-Rw0RiuZEYKuO2ItKbOy30V2nMH?usp=drive_link>
 
 ## Overview
 
-This project processes podcast audio episodes by:
+The pipeline is split into four independent scripts:
 
-1. **Transcribing** audio using `whisper-timestamped` for accurate speech-to-text conversion
-2. **Generating blog posts** using Google Gemini AI with title, excerpt, and full content
-3. **Creating portrait videos** for social media by combining podcast audio with the podcast graphic
-4. **Uploading to YouTube** with optimized titles, descriptions, and hashtags
-5. **Tracking progress** via JSON to avoid re-processing or re-uploading content
+1. **`transcribe.py`** — Transcribe audio to plain text using [openai-whisper](https://github.com/openai/whisper)
+2. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 2.5 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
+3. **`create_videos.py`** — Create portrait videos for social media
+4. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
+
+Each script is resumable via `podcasts_data.json` and skips work that is already done.
 
 ## Project Structure
 
 ```text
 take-a-hike-podcast/
-├── audio/              # Input podcast audio files (.mp3)
-├── videos/                # Generated portrait videos (.mp4)
-├── podcasts_data.json     # Processing metadata and YouTube tracking
-├── process_podcasts.py    # Main processing script
-├── requirements.txt       # Python dependencies
+├── audio/                  # Input podcast audio files (.mp3)
+├── transcripts/            # Plain-text transcripts (.txt)
+├── blogs/                  # Ghost-compatible blog posts (.md)
+├── videos/                 # Generated portrait videos (.mp4)
+├── lib/                    # Shared config, state, Gemini, blog, YouTube helpers
+├── podcasts_data.json      # Processing metadata and YouTube tracking
+├── transcribe.py
+├── generate_blog.py
+├── create_videos.py
+├── upload_youtube.py
+├── requirements.txt
 └── TAH_Podcast_Graphics.jpg  # Podcast graphic for video generation
 ```
 
@@ -34,143 +41,132 @@ take-a-hike-podcast/
 pip install -r requirements.txt
 ```
 
-**Note:** You'll also need FFmpeg installed:
+You also need FFmpeg installed:
 
 - **Windows:** Download from [ffmpeg.org](https://ffmpeg.org/download.html) and add to PATH
 - **macOS:** `brew install ffmpeg`
 - **Linux:** `sudo apt-get install ffmpeg`
 
-### 2. Configure Google API Key
+### 2. Configure Gemini (gemini-webapi)
 
-1. Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a `.env` file in the project root:
+1. Log in to [gemini.google.com](https://gemini.google.com)
+2. Open browser dev tools → Network tab → refresh the page
+3. Copy cookie values for `__Secure-1PSID` and `__Secure-1PSIDTS`
+4. Create a `.env` file from `.env.template`:
 
-   ```text
-   GOOGLE_API_KEY=your-api-key-here
-   ```
+```text
+GEMINI_SECURE_1PSID=your-cookie-value
+GEMINI_SECURE_1PSIDTS=your-cookie-value
+GEMINI_COOKIE_PATH=./gemini_cache
+GEMINI_WEBAPI_LOG_LEVEL=INFO
+BLOG_BASE_URL=https://townsvillebushwalkingclub.com
+WHISPER_MODEL=base
+```
+
+`GEMINI_COOKIE_PATH` can be any writable directory. On Windows, forward slashes are recommended.
 
 ### 3. Configure YouTube Upload (Optional)
-
-If you want to upload videos to YouTube:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Enable YouTube Data API v3
 3. Create OAuth 2.0 credentials (Desktop app type)
 4. Download and save as `client_secret.json` in the project root
-5. On first upload, the script will open a browser for authentication
+5. On first upload, the script opens a browser for authentication
 
 ## Usage
 
-### Process Episodes (Without YouTube Upload)
+Run the scripts in this order:
 
 ```bash
-python process_podcasts.py
+python transcribe.py
+python generate_blog.py
+python create_videos.py
+python upload_youtube.py
 ```
 
-This will transcribe all podcasts, generate blog posts, and create portrait videos. Results are saved to `podcasts_data.json` and `videos/` directory.
+`create_videos.py` can run in parallel with transcription/blog generation since it only needs the audio files.
 
-### Process and Upload to YouTube
+Each script supports `--force` to redo its step. `upload_youtube.py` also accepts `--youtube-credentials PATH`.
 
-```bash
-python process_podcasts.py --upload
+## Output Formats
+
+### Transcripts
+
+Plain text files in `transcripts/` named after the episode, e.g. `Take a Hike - Topic.txt`.
+
+### Blog Posts
+
+Markdown files with YAML frontmatter in `blogs/`, compatible with [Ghost CMS](https://ghost.org/):
+
+```markdown
+---
+slug: walkers-creek-2026
+title: "Walkers Creek - Trip Report"
+youtube_url: "PLACEHOLDER_YOUTUBE_URL"
+episode_file: "Take a Hike - Walkers Creek.mp3"
+blog_url: "https://townsvillebushwalkingclub.com/walkers-creek-2026/"
+---
+
+Blog body in Markdown...
 ```
 
-**Note:** YouTube has daily upload limits (typically 6-15 videos/day). The script tracks uploaded videos by YouTube ID and automatically skips already-uploaded videos when you resume the next day.
+Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). After YouTube upload, `upload_youtube.py` replaces `PLACEHOLDER_YOUTUBE_URL` with the real video link.
 
-### Command Line Options
+### YouTube Descriptions
 
-- `--upload`: Upload videos to YouTube (default: False)
-- `--api-key KEY`: Google API key (optional, can use GOOGLE_API_KEY in .env)
-- `--youtube-credentials PATH`: Path to YouTube OAuth credentials (default: `client_secret.json`)
+Built programmatically in this structure:
+
+```text
+{AI summary/intro}
+
+Read the full blog post: {blog_url}
+
+---
+
+Full Transcript:
+{full transcript}
+
+{hashtags}
+```
+
+Videos are uploaded as **public**.
+
+### Name correction
+
+Whisper and AI sometimes mishear **Luen Warneke** as "Lewyn Warnakie" and similar variants. All pipeline scripts automatically correct these to **Luen Warneke** in transcripts, blog posts, and YouTube descriptions. **Cherry Judge** is always normalized to that exact capitalization.
+
+Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, ellipsis characters) is also normalized to plain ASCII (`'`, `"`, `-`, `...`).
 
 ## JSON Data Structure
 
-The `podcasts_data.json` file tracks all processed episodes with the following structure:
+`podcasts_data.json` tracks progress per episode:
 
 ```json
 {
-  "episode_filename.mp3": {
-    "episode_file": "episode_filename.mp3",
-    "transcript": "Full transcription text...",
-    "blog_title": "Generated blog post title",
-    "blog_excerpt": "200-character excerpt...",
-    "blog_content": "Full blog post content...",
-    "youtube_title": "YouTube optimized title",
-    "youtube_description": "YouTube description with hashtags...",
-    "youtube_id": "YouTube video ID (if uploaded)"
+  "Take a Hike - Topic.mp3": {
+    "episode_file": "Take a Hike - Topic.mp3",
+    "transcript_file": "transcripts/Take a Hike - Topic.txt",
+    "transcript_done": true,
+    "blog_slug": "topic-slug-2026",
+    "blog_file": "blogs/topic-slug-2026.md",
+    "blog_url": "https://townsvillebushwalkingclub.com/topic-slug-2026/",
+    "youtube_id": "",
+    "youtube_url": "",
+    "youtube_title": ""
   }
 }
 ```
 
-### Tracking Features
-
-- **Avoids re-processing**: Episodes already in the JSON file are skipped
-- **Resume capability**: Can stop and resume processing at any time
-- **Upload tracking**: YouTube ID stored to prevent duplicate uploads
-- **Daily limit handling**: Process some videos, resume the next day to upload remaining
-
-## Workflow Details
-
-### 1. Transcription
-
-- Uses `whisper-timestamped` with the "base" model
-- Extracts full transcript text from audio
-- Handles English language podcast content
-
-### 2. Blog Post Generation
-
-- Uses Google Gemini AI to generate:
-  - **Title**: SEO-friendly, under 60 characters
-  - **Excerpt**: Exactly 200 characters
-  - **Content**: Full blog post with key topics and practical tips
-
-### 3. Video Creation
-
-- Creates portrait videos (1080x1920) for social media
-- Combines podcast audio with `TAH_Podcast_Graphics.jpg`
-- Videos saved as `.mp4` files in the `videos/` directory
-
-### 4. YouTube Upload
-
-- Generates optimized titles and descriptions with hashtags
-- Uploads videos with metadata
-- Tracks YouTube IDs to prevent duplicates
-- Respects daily upload limits (resume capability built-in)
-
-## Rate Limiting & Daily Limits
-
-YouTube has daily upload limits. The script:
-
-- Tracks uploaded videos via YouTube ID in JSON
-- Skips already-uploaded videos automatically
-- Allows processing to be stopped and resumed
-- Uploads can be done in batches across multiple days
-
-**Example workflow:**
-
-1. Day 1: Process all episodes (transcription + blog + video)
-2. Day 1: Upload 10 videos (hits daily limit)
-3. Day 2: Resume with `--upload` flag (skips already uploaded, continues with rest)
-
 ## Troubleshooting
 
-- **"FFmpeg not found"** → Install FFmpeg and ensure it's in your PATH
-- **"Google API key required"** → Set `GOOGLE_API_KEY` in `.env` file
-- **"YouTube credentials not found"** → Download OAuth credentials from Google Cloud Console and save as `client_secret.json`
-- **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3 format
-- **Upload fails** → Check daily limit, verify YouTube Data API v3 is enabled, check internet connection
-
-## Contributing
-
-This project was created for the Townsville Bushwalking Club's "Take A Hike" podcast processing needs.
-
-## License
-
-[Add license information here]
+- **"FFmpeg not found"** → Install FFmpeg and ensure it is in your PATH
+- **"Gemini cookies required"** → Set `GEMINI_SECURE_1PSID` and `GEMINI_SECURE_1PSIDTS` in `.env`
+- **"YouTube credentials not found"** → Download OAuth credentials and save as `client_secret.json`
+- **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
+- **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
 
 ## Credits
 
-- **Podcast**: Take A Hike - A LiSTNR production
-- **Host**: Blair Woodcock
-- **Regular Guests**: Luen Warneke, Cherry Judge
-- **Special Guests**: Various hiking enthusiasts from Townsville and beyond
+- **Podcast:** Take A Hike — A LiSTNR production
+- **Host:** Blair Woodcock
+- **Regular Guests:** Luen Warneke, Cherry Judge
