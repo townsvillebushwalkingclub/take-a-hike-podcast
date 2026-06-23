@@ -165,6 +165,10 @@ Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, el
 - **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
 - **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
 
+## Contributing
+
+This project was created for the Townsville Bushwalking Club's "Take A Hike" podcast processing needs.
+
 ## Credits
 
 - **Podcast:** Take A Hike — A LiSTNR production
