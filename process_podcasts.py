@@ -4,6 +4,7 @@ DEPRECATED: Use the four-script pipeline instead.
 
 Run these scripts in order:
   python transcribe.py
+  python clean_transcripts.py
   python generate_blog.py
   python create_videos.py
   python upload_youtube.py

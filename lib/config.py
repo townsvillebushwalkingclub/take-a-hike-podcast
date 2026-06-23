@@ -11,6 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 AUDIO_DIR = PROJECT_ROOT / "audio"
 TRANSCRIPTS_DIR = PROJECT_ROOT / "transcripts"
+RAW_TRANSCRIPTS_DIR = TRANSCRIPTS_DIR / "raw"
 BLOGS_DIR = PROJECT_ROOT / "blogs"
 VIDEOS_DIR = PROJECT_ROOT / "videos"
 GRAPHIC_FILE = PROJECT_ROOT / "TAH_Podcast_Graphics.jpg"
@@ -24,7 +25,7 @@ GEMINI_MODEL = "gemini-2.5-pro"
 PLACEHOLDER_YOUTUBE_URL = "PLACEHOLDER_YOUTUBE_URL"
 
 BLOG_BASE_URL = os.getenv("BLOG_BASE_URL", "https://townsvillebushwalkingclub.com").rstrip("/")
-WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "large-v3")
 GEMINI_LOG_LEVEL = os.getenv("GEMINI_WEBAPI_LOG_LEVEL", "INFO")
 
 
@@ -33,10 +34,21 @@ def build_blog_url(slug: str) -> str:
     return f"{BLOG_BASE_URL}/{slug.strip('/')}/"
 
 
-def transcript_path_for_episode(episode_filename: str) -> Path:
-    """Return the transcript .txt path for an episode MP3 filename."""
+def raw_transcript_path_for_episode(episode_filename: str) -> Path:
+    """Return the raw Whisper transcript path for an episode MP3 filename."""
+    stem = Path(episode_filename).stem
+    return RAW_TRANSCRIPTS_DIR / f"{stem}.txt"
+
+
+def cleaned_transcript_path_for_episode(episode_filename: str) -> Path:
+    """Return the cleaned transcript path for an episode MP3 filename."""
     stem = Path(episode_filename).stem
     return TRANSCRIPTS_DIR / f"{stem}.txt"
+
+
+def transcript_path_for_episode(episode_filename: str) -> Path:
+    """Alias for the cleaned transcript path (used by downstream scripts)."""
+    return cleaned_transcript_path_for_episode(episode_filename)
 
 
 def video_path_for_episode(episode_filename: str) -> Path:
@@ -47,5 +59,5 @@ def video_path_for_episode(episode_filename: str) -> Path:
 
 def ensure_directories() -> None:
     """Create output directories if they do not exist."""
-    for directory in (TRANSCRIPTS_DIR, BLOGS_DIR, VIDEOS_DIR):
+    for directory in (RAW_TRANSCRIPTS_DIR, TRANSCRIPTS_DIR, BLOGS_DIR, VIDEOS_DIR):
         directory.mkdir(parents=True, exist_ok=True)

@@ -6,29 +6,34 @@ Find the audio files from the podcast: <https://drive.google.com/drive/folders/1
 
 ## Overview
 
-The pipeline is split into four independent scripts:
+The pipeline is split into five independent scripts:
 
-1. **`transcribe.py`** — Transcribe audio to plain text using [openai-whisper](https://github.com/openai/whisper)
-2. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 2.5 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
-3. **`create_videos.py`** — Create portrait videos for social media
-4. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
+1. **`transcribe.py`** — Transcribe audio to **raw** plain text using [openai-whisper](https://github.com/openai/whisper) (default: `large-v3`)
+2. **`clean_transcripts.py`** — Apply name and place-name fixes to raw transcripts, writing cleaned copies
+3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 2.5 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
+4. **`create_videos.py`** — Create portrait videos for social media
+5. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
 
-Each script is resumable via `podcasts_data.json` and skips work that is already done.
+Each script is resumable via `podcasts_data.json` and skips work that is already done. Transcript text is stored in files only — not duplicated in the JSON file.
 
 ## Project Structure
 
 ```text
 take-a-hike-podcast/
 ├── audio/                  # Input podcast audio files (.mp3)
-├── transcripts/            # Plain-text transcripts (.txt)
+├── transcripts/
+│   ├── raw/                # Raw Whisper output (step 1)
+│   └── *.txt               # Cleaned transcripts after fixes (step 2)
 ├── blogs/                  # Ghost-compatible blog posts (.md)
 ├── videos/                 # Generated portrait videos (.mp4)
 ├── lib/                    # Shared config, state, Gemini, blog, YouTube helpers
-├── podcasts_data.json      # Processing metadata and YouTube tracking
+├── podcasts_data.json      # Processing metadata only (paths and flags)
 ├── transcribe.py
+├── clean_transcripts.py
 ├── generate_blog.py
 ├── create_videos.py
 ├── upload_youtube.py
+├── migrate_podcasts_data.py
 ├── requirements.txt
 └── TAH_Podcast_Graphics.jpg  # Podcast graphic for video generation
 ```
@@ -60,7 +65,7 @@ GEMINI_SECURE_1PSIDTS=your-cookie-value
 GEMINI_COOKIE_PATH=./gemini_cache
 GEMINI_WEBAPI_LOG_LEVEL=INFO
 BLOG_BASE_URL=https://townsvillebushwalkingclub.com
-WHISPER_MODEL=base
+WHISPER_MODEL=large-v3
 ```
 
 `GEMINI_COOKIE_PATH` can be any writable directory. On Windows, forward slashes are recommended.
@@ -79,6 +84,7 @@ Run the scripts in this order:
 
 ```bash
 python transcribe.py
+python clean_transcripts.py
 python generate_blog.py
 python create_videos.py
 python upload_youtube.py
@@ -88,11 +94,22 @@ python upload_youtube.py
 
 Each script supports `--force` to redo its step. `upload_youtube.py` also accepts `--youtube-credentials PATH`.
 
+`transcribe.py` writes untouched Whisper output to `transcripts/raw/`. Re-run with `--force` to overwrite raw files after changing the model.
+
+`clean_transcripts.py` reads raw files and writes fixed text to `transcripts/`. Re-run with `--force` after updating correction rules in `lib/text.py` or `lib/names.py`.
+
+If upgrading from an older version with inline transcript text in `podcasts_data.json`, run once:
+
+```bash
+python migrate_podcasts_data.py
+```
+
 ## Output Formats
 
 ### Transcripts
 
-Plain text files in `transcripts/` named after the episode, e.g. `Take a Hike - Topic.txt`.
+- **Raw** (`transcripts/raw/`): direct Whisper output, named after the episode MP3
+- **Cleaned** (`transcripts/`): after name and term fixes — used by blog and YouTube scripts
 
 ### Blog Posts
 
@@ -131,20 +148,23 @@ Full Transcript:
 
 Videos are uploaded as **public**.
 
-### Name correction
+### Name and term correction
 
-Whisper and AI sometimes mishear **Luen Warneke** as "Lewyn Warnakie" and similar variants. All pipeline scripts automatically correct these to **Luen Warneke** in transcripts, blog posts, and YouTube descriptions. **Cherry Judge** is always normalized to that exact capitalization.
+Whisper mishearings are corrected in **step 2** (`clean_transcripts.py`), not during transcription. This includes **Luen Warneke**, **Cherry Judge**, place names (e.g. `Casawary` → **Cassowary**, `Wallamann` → **Wallaman**), and typographic punctuation normalization.
 
-Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, ellipsis characters) is also normalized to plain ASCII (`'`, `"`, `-`, `...`). Common Whisper mishearings are corrected automatically (e.g. `Casawary` → **Cassowary**, `Helifax` → **Halifax**, `Wallamann` → **Wallaman**, `understory.space` → **wanderstories.space**).
+Blog and YouTube scripts still apply `clean_text()` to AI-generated titles and body text.
 
 ## JSON Data Structure
 
-`podcasts_data.json` tracks progress per episode:
+`podcasts_data.json` tracks progress per episode. It stores paths and flags only — not full transcript or blog text.
 
 ```json
 {
   "Take a Hike - Topic.mp3": {
     "episode_file": "Take a Hike - Topic.mp3",
+    "raw_transcript_file": "transcripts/raw/Take a Hike - Topic.txt",
+    "transcript_raw_done": true,
+    "whisper_model": "large-v3",
     "transcript_file": "transcripts/Take a Hike - Topic.txt",
     "transcript_done": true,
     "blog_slug": "topic-slug-2026",
@@ -164,6 +184,7 @@ Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, el
 - **"YouTube credentials not found"** → Download OAuth credentials and save as `client_secret.json`
 - **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
 - **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
+- **Whisper MemoryError on large-v3** → Close other apps, ensure ~8GB+ free RAM, or use `WHISPER_MODEL=medium`
 
 ## Contributing
 

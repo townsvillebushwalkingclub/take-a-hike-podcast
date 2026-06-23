@@ -8,11 +8,12 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from lib.blog import read_blog_frontmatter, update_blog_youtube_url
-from lib.config import ensure_directories, transcript_path_for_episode, video_path_for_episode
+from lib.config import ensure_directories, video_path_for_episode
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
 from lib.text import TEXT_PROMPT_NOTE, clean_text
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
+from lib.transcripts import read_clean_transcript
 from lib.youtube import upload_video
 
 
@@ -56,23 +57,6 @@ def build_description(summary: str, blog_url: str, transcript: str, hashtags: st
     )
 
 
-def read_transcript(episode: dict, episode_filename: str) -> str:
-    """Load transcript text for an episode."""
-    transcript_file = episode.get("transcript_file", "")
-    if transcript_file:
-        path = Path(transcript_file)
-        if path.exists():
-            return path.read_text(encoding="utf-8").strip()
-
-    fallback = transcript_path_for_episode(episode_filename)
-    if fallback.exists():
-        return fallback.read_text(encoding="utf-8").strip()
-
-    raise FileNotFoundError(
-        f"No transcript found for {episode_filename}. Run transcribe.py first."
-    )
-
-
 def process_episode(
     episode_filename: str,
     state: dict,
@@ -106,7 +90,7 @@ def process_episode(
     if not blog_url:
         raise ValueError(f"No blog_url for {episode_filename}")
 
-    transcript = clean_text(read_transcript(episode, episode_filename))
+    transcript = read_clean_transcript(episode, episode_filename)
     print(f"Generating YouTube metadata for {episode_filename}...")
 
     prompt = YOUTUBE_PROMPT.format(

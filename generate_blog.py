@@ -11,8 +11,9 @@ from lib.blog import write_blog_post
 from lib.config import BLOGS_DIR, build_blog_url, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
-from lib.text import TEXT_PROMPT_NOTE, clean_text
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
+from lib.text import TEXT_PROMPT_NOTE, clean_text
+from lib.transcripts import read_clean_transcript
 
 
 class BlogPost(BaseModel):
@@ -46,19 +47,6 @@ Respond with JSON only in this exact shape:
 """
 
 
-def read_transcript(episode: dict) -> str:
-    """Load transcript text from the episode record."""
-    transcript_file = episode.get("transcript_file", "")
-    if not transcript_file:
-        raise FileNotFoundError("No transcript_file in episode metadata. Run transcribe.py first.")
-
-    path = Path(transcript_file)
-    if not path.exists():
-        raise FileNotFoundError(f"Transcript not found: {transcript_file}")
-
-    return path.read_text(encoding="utf-8").strip()
-
-
 def process_episode(episode_filename: str, state: dict, force: bool = False) -> None:
     """Generate a blog post for one episode."""
     episode = get_episode(state, episode_filename)
@@ -69,7 +57,7 @@ def process_episode(episode_filename: str, state: dict, force: bool = False) -> 
             print(f"Skipping {episode_filename} - blog already exists")
             return
 
-    transcript = clean_text(read_transcript(episode))
+    transcript = read_clean_transcript(episode, episode_filename)
     print(f"Generating blog post for {episode_filename}...")
 
     prompt = BLOG_PROMPT.format(

@@ -216,6 +216,7 @@ client_secret.json
 gemini_cookies.json
 temp_portrait.jpg
 !transcripts/.gitkeep
+!transcripts/raw/.gitkeep
 !blogs/.gitkeep
 *.mp3
 *.mp4

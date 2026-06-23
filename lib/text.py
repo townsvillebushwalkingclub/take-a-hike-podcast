@@ -43,6 +43,7 @@ _TERM_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bhunting\s+field\b", re.IGNORECASE), "Huntingfield"),
     (re.compile(r"\bBig\s+Bristol\s+Creek\b", re.IGNORECASE), "Big Crystal Creek"),
     (re.compile(r"\bPaloma\b", re.IGNORECASE), "Paluma"),
+    (re.compile(r"\bPluma\b", re.IGNORECASE), "Paluma"),
     (re.compile(r"\bLake\s+Tineru\b", re.IGNORECASE), "Lake Tinaroo"),
     (re.compile(r"\bCasawaries\b", re.IGNORECASE), "Cassowaries"),
     (re.compile(r"\bCasawary\b", re.IGNORECASE), "Cassowary"),

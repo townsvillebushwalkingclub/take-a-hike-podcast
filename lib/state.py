@@ -25,6 +25,9 @@ def get_episode(data: dict[str, Any], episode_filename: str) -> dict[str, Any]:
     if episode_filename not in data:
         data[episode_filename] = {
             "episode_file": episode_filename,
+            "raw_transcript_file": "",
+            "transcript_raw_done": False,
+            "whisper_model": "",
             "transcript_file": "",
             "transcript_done": False,
             "blog_slug": "",
