@@ -6,7 +6,7 @@ import re
 import sys
 from pathlib import Path
 
-from lib.config import JSON_FILE
+from lib.config import JSON_FILE, TRANSCRIPTS_DIR
 from lib.text import clean_text
 
 TEXT_FIELDS = (
@@ -78,8 +78,19 @@ def main() -> int:
 
     JSON_FILE.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
+    transcript_files_changed = 0
+    if TRANSCRIPTS_DIR.exists():
+        for transcript_path in TRANSCRIPTS_DIR.glob("*.txt"):
+            original = transcript_path.read_text(encoding="utf-8")
+            cleaned = clean_text(original)
+            if cleaned != original:
+                transcript_path.write_text(cleaned, encoding="utf-8")
+                transcript_files_changed += 1
+                print(f"Fixed transcript: {transcript_path.name}")
+
     print(f"\nEpisodes updated: {changed_episodes}")
     print(f"Fields updated: {changed_fields}")
+    print(f"Transcript files updated: {transcript_files_changed}")
     print(f"Name issues before: {before_issues}")
     print(f"Name issues after: {after_issues}")
     print(f"Saved: {JSON_FILE}")

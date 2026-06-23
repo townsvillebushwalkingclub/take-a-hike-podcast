@@ -209,7 +209,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Project-specific files
+# CUSTOM
 youtube_token.json
 youtube_credentials.json
 client_secret.json

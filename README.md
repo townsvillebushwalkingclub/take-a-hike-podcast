@@ -135,7 +135,7 @@ Videos are uploaded as **public**.
 
 Whisper and AI sometimes mishear **Luen Warneke** as "Lewyn Warnakie" and similar variants. All pipeline scripts automatically correct these to **Luen Warneke** in transcripts, blog posts, and YouTube descriptions. **Cherry Judge** is always normalized to that exact capitalization.
 
-Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, ellipsis characters) is also normalized to plain ASCII (`'`, `"`, `-`, `...`).
+Typographic punctuation (curly apostrophes like `'`, smart quotes, em dashes, ellipsis characters) is also normalized to plain ASCII (`'`, `"`, `-`, `...`). Common Whisper mishearings are corrected automatically (e.g. `Casawary` → **Cassowary**, `Helifax` → **Halifax**, `Wallamann` → **Wallaman**, `understory.space` → **wanderstories.space**).
 
 ## JSON Data Structure
 
