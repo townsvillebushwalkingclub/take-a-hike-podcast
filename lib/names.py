@@ -20,7 +20,7 @@ _LUEN_YOURE_PATTERN = re.compile(r"\bLuen\s+Yorke\b", re.IGNORECASE)
 # Full name: misheard first name + optional "and" + misheard surname.
 _FULL_NAME_PATTERN = re.compile(
     r"\b(?:Llewyn|Lewyn|Lewin|Luan|Luen|Lil)\s+(?:and\s+)?"
-    r"(?:Warnakie|Warneke|Warnecke|Warnocky|Warnicky|Warrneke|Wernake|Warrnake)\b",
+    r"(?:Warnakie|Warneke|Warnecke|Warnakey|Warnocky|Warnicky|Warrneke|Wernake|Warrnake)\b",
     re.IGNORECASE,
 )
 
@@ -44,7 +44,7 @@ _LIL_AND_PATTERN = re.compile(r"\bLil\s+and\b", re.IGNORECASE)
 
 # Standalone first-name misspellings after full names are corrected.
 _FIRST_NAME_PATTERN = re.compile(
-    r"\b(?:Llewyn|Lewyn|Lewin|Luan|Lil|Llewit|Loon|Lohan)\b",
+    r"\b(?:Llewyn|Lewyn|Lewin|Luan|Lil|Llewit|Lorne|Luwin|Loon|Lohan)\b",
     re.IGNORECASE,
 )
 
