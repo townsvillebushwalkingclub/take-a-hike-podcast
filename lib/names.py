@@ -10,9 +10,14 @@ BLAIR_WOODCOCK_FIRST_NAME = "Blair"
 # Host first name: Blaise -> Blair.
 _BLAISE_PATTERN = re.compile(r"\bBlaise\b", re.IGNORECASE)
 
-# Guest name: Mikkel -> Mickle.
+# Mentioned name: Mikkel -> Mickle.
 _MIKKEL_POSSESSIVE_PATTERN = re.compile(r"\bMikkel's\b", re.IGNORECASE)
 _MIKKEL_PATTERN = re.compile(r"\bMikkel\b", re.IGNORECASE)
+
+# Mentioned name: Wilfrid Karnal -> Wilfred Karnoll.
+WILFRED_KARNOLL_FULL_NAME = "Wilfred Karnoll"
+_WILFRID_KARNAL_PATTERN = re.compile(r"\bWilfrid\s+Karnal\b", re.IGNORECASE)
+_WILFRID_POSSESSIVE_PATTERN = re.compile(r"\bWilfrid['']s\b", re.IGNORECASE)
 
 # "Luen, you're..." misheard as a surname.
 _LUEN_YOURE_PATTERN = re.compile(r"\bLuen\s+Yorke\b", re.IGNORECASE)
@@ -63,6 +68,8 @@ def fix_names(text: str) -> str:
     corrected = _BLAISE_PATTERN.sub(BLAIR_WOODCOCK_FIRST_NAME, corrected)
     corrected = _MIKKEL_POSSESSIVE_PATTERN.sub("Mickle's", corrected)
     corrected = _MIKKEL_PATTERN.sub("Mickle", corrected)
+    corrected = _WILFRID_KARNAL_PATTERN.sub(WILFRED_KARNOLL_FULL_NAME, corrected)
+    corrected = _WILFRID_POSSESSIVE_PATTERN.sub("Wilfred's", corrected)
     corrected = _FULL_NAME_PATTERN.sub(CANONICAL_FULL_NAME, corrected)
     corrected = _CHERRY_AND_LUEN_PATTERN.sub(f"Cherry, {CANONICAL_FIRST_NAME}", corrected)
     corrected = _CHERRY_JUDGE_PATTERN.sub(CHERRY_JUDGE_FULL_NAME, corrected)

@@ -35,8 +35,6 @@ _TERM_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bChunder\s+Rock\b", re.IGNORECASE), "Chunda Rock"),
     (re.compile(r"\bChunder\s+Bay\b", re.IGNORECASE), "Chunda Bay"),
     (re.compile(r"\bGireme\s+National\s+Park\b", re.IGNORECASE), "Girramay National Park"),
-    (re.compile(r"\bWilfrid\s+Karnal\b", re.IGNORECASE), "Wilfred Karnoll"),
-    (re.compile(r"\bWilfrid['']s\b", re.IGNORECASE), "Wilfred's"),
     (re.compile(r"\bno-seum\s+mesh\b", re.IGNORECASE), "No-see-um mesh"),
     (re.compile(r"\bMount\s+Halifax\s+track,\s+George\b", re.IGNORECASE), "Mount Halifax track, Gorge"),
     (re.compile(r"\bHuendon\b", re.IGNORECASE), "Hughenden"),
