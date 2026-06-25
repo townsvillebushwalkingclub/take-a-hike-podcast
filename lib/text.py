@@ -18,11 +18,45 @@ _LISTNR_PRODUCTION_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+_LISTENER_PRODUCTION_PATTERN = re.compile(
+    r"\bA\s+listener\s+production\b",
+    re.IGNORECASE,
+)
+
 # Common Whisper mishearings of hiking and regional terms.
+# More specific patterns must appear before shorter/overlapping ones.
 _TERM_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bwonderstories\.space\b", re.IGNORECASE), "wanderstories.space"),
+    (re.compile(r"\bWonder\s+Stories\b", re.IGNORECASE), "Wanderstories"),
+    (re.compile(r"\bWander\s+Stories\b", re.IGNORECASE), "Wanderstories"),
+    (re.compile(r"\bwonderstories\b", re.IGNORECASE), "wanderstories"),
+    (re.compile(r"\bKillie\s+Moon\s+Creek\b", re.IGNORECASE), "Killymoon Creek"),
+    (re.compile(r"\bKilly\s+Moon\s+Creek\b", re.IGNORECASE), "Killymoon Creek"),
+    (re.compile(r"\bKillie\s+Moon\b", re.IGNORECASE), "Killymoon"),
+    (re.compile(r"\bKilly\s+Moon\b", re.IGNORECASE), "Killymoon"),
+    (re.compile(r"\bPlumer\s+Dam\b", re.IGNORECASE), "Paluma Dam"),
+    (re.compile(r"\bPadrama\s+Falls\b", re.IGNORECASE), "Jourama Falls"),
+    (re.compile(r"\bJarama\s+Falls\b", re.IGNORECASE), "Jourama Falls"),
+    (re.compile(r"\bDharama\s+Falls\b", re.IGNORECASE), "Jourama Falls"),
+    (re.compile(r"\bDyerite\s+Falls\b", re.IGNORECASE), "Diorite Falls"),
+    (re.compile(r"\bWallerman\s+Falls\b", re.IGNORECASE), "Wallaman Falls"),
+    (re.compile(r"\bWolloman\s+Falls\b", re.IGNORECASE), "Wallaman Falls"),
+    (re.compile(r"\bThorsbourne\s+Trail\b", re.IGNORECASE), "Thorsborne Trail"),
+    (re.compile(r"\bMount\s+Peterbott\b", re.IGNORECASE), "Mount Pieter Botte"),
+    (re.compile(r"\bMount\s+Elliott\b", re.IGNORECASE), "Mount Elliot"),
+    (re.compile(r"\bLake\s+Tinneroo\b", re.IGNORECASE), "Lake Tinaroo"),
+    (re.compile(r"\bMingler\s+Range\b", re.IGNORECASE), "Mingela Range"),
+    (re.compile(r"\bMangatree\s+Car\s+Park\b", re.IGNORECASE), "Mango Tree Car Park"),
+    (re.compile(r"\bMitch\s+Nissen\b", re.IGNORECASE), "Mitch Nissan"),
+    (re.compile(r"\bGod\s+Zone\b", re.IGNORECASE), "Godzone"),
+    (re.compile(r"\bGringan\s+National\s+Park\b", re.IGNORECASE), "Girringun National Park"),
+    (re.compile(r"\bGringan\b", re.IGNORECASE), "Grin and Bear"),
+    (re.compile(r"\bPalooma\b", re.IGNORECASE), "Paluma"),
     (re.compile(r"\bDinema\b", re.IGNORECASE), "Dyneema"),
     (re.compile(r"\bFarnworth\s+Queensland\b", re.IGNORECASE), "Far North Queensland"),
     (re.compile(r"\bBartlefrier\b", re.IGNORECASE), "Bartle Frere"),
+    (re.compile(r"\bBartle\s+Free\b", re.IGNORECASE), "Bartle Frere"),
+    (re.compile(r"\bBartle\s+Freer\b", re.IGNORECASE), "Bartle Frere"),
     (re.compile(r"\bonedistory\.space\b", re.IGNORECASE), "wanderstories.space"),
     (re.compile(r"\bTazzy\b", re.IGNORECASE), "Tassie"),
     (re.compile(r"\bGroviral\b", re.IGNORECASE), "go viral"),
@@ -35,7 +69,10 @@ _TERM_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bKranda\b", re.IGNORECASE), "Kuranda"),
     (re.compile(r"\bzack-mark\b", re.IGNORECASE), "ZACH MACH"),
     (re.compile(r"\bgodzones\b", re.IGNORECASE), "Godzone"),
-    (re.compile(r"\bnightcorp\b", re.IGNORECASE), "NITECORE"),
+    (re.compile(r"\bnightcorp\b", re.IGNORECASE), "Nitecore"),
+    (re.compile(r"\bnightcore\b", re.IGNORECASE), "Nitecore"),
+    (re.compile(r"\bYongeboro\b", re.IGNORECASE), "Yungaburra"),
+    (re.compile(r"\bHuntingfield\s+bath\b", re.IGNORECASE), "Huntingfield Bay"),
     (re.compile(r"\bHinch\s+and\s+Brook\b", re.IGNORECASE), "Hinchinbrook"),
     (re.compile(r"\bmord\s+bay\b", re.IGNORECASE), "Maud Bay"),
     (re.compile(r"\bLovers\s+bay\b", re.IGNORECASE), "Lovers Bay"),
@@ -116,6 +153,7 @@ def fix_branding(text: str) -> str:
 
     if not text:
         return text
+    text = _LISTENER_PRODUCTION_PATTERN.sub(CANONICAL_LISTNR_PRODUCTION, text)
     return _LISTNR_PRODUCTION_PATTERN.sub(_replace, text)
 
 

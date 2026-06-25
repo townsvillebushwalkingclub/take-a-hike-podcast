@@ -8,14 +8,14 @@ CHERRY_JUDGE_FULL_NAME = "Cherry Judge"
 
 # Full name: misheard first name + optional "and" + misheard surname.
 _FULL_NAME_PATTERN = re.compile(
-    r"\b(?:Lewyn|Lewin|Luan|Luen|Lil)\s+(?:and\s+)?"
+    r"\b(?:Llewyn|Lewyn|Lewin|Luan|Luen|Lil)\s+(?:and\s+)?"
     r"(?:Warnakie|Warneke|Warnecke|Warnocky|Warnicky|Warrneke|Wernake|Warrnake)\b",
     re.IGNORECASE,
 )
 
 # "Cherry Lewin" / "Cherry Lewyn" when Luen is addressed alongside Cherry.
 _CHERRY_AND_LUEN_PATTERN = re.compile(
-    r"\b[Cc]herry\s+(?:Lewyn|Lewin|Luan|Lil)\b",
+    r"\b[Cc]herry\s+(?:Llewyn|Lewyn|Lewin|Luan|Lil)\b",
     re.IGNORECASE,
 )
 
@@ -24,7 +24,7 @@ _CHERRY_JUDGE_PATTERN = re.compile(r"\b[Cc]herry\s+[Jj]udge\b", re.IGNORECASE)
 
 # Possessive first-name misspellings: "Lewyn's world" -> "Luen's world".
 _POSSESSIVE_FIRST_NAME_PATTERN = re.compile(
-    r"\b(?:Lewyn|Lewin|Luan|Lil)'s\b",
+    r"\b(?:Llewyn|Lewyn|Lewin|Luan|Lil)'s\b",
     re.IGNORECASE,
 )
 
@@ -33,7 +33,7 @@ _LIL_AND_PATTERN = re.compile(r"\bLil\s+and\b", re.IGNORECASE)
 
 # Standalone first-name misspellings after full names are corrected.
 _FIRST_NAME_PATTERN = re.compile(
-    r"\b(?:Lewyn|Lewin|Luan|Lil|Loon|Lohan)\b",
+    r"\b(?:Llewyn|Lewyn|Lewin|Luan|Lil|Loon|Lohan)\b",
     re.IGNORECASE,
 )
 
