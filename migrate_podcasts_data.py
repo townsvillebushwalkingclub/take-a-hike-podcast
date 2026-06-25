@@ -27,6 +27,8 @@ CANONICAL_FIELDS = (
     "youtube_id",
     "youtube_url",
     "youtube_title",
+    "spotify_url",
+    "spotify_title",
 )
 
 
@@ -44,6 +46,8 @@ def default_episode(episode_filename: str) -> dict:
         "youtube_id": "",
         "youtube_url": "",
         "youtube_title": "",
+        "spotify_url": "",
+        "spotify_title": "",
     }
 
 

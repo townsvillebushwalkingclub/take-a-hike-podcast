@@ -8,7 +8,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from lib.blog import write_blog_post
-from lib.config import BLOGS_DIR, build_blog_url, ensure_directories
+from lib.config import BLOGS_DIR, PLACEHOLDER_SPOTIFY_URL, build_blog_url, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
@@ -84,6 +84,7 @@ def process_episode(episode_filename: str, state: dict, force: bool = False) -> 
         body=body,
         episode_file=episode_filename,
         blog_url=blog_url,
+        spotify_url=PLACEHOLDER_SPOTIFY_URL,
     )
 
     episode["blog_slug"] = slug

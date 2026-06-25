@@ -213,6 +213,7 @@ __marimo__/
 youtube_token.json
 youtube_credentials.json
 client_secret.json
+spotify-cookies.json
 gemini_cookies.json
 temp_portrait.jpg
 !transcripts/.gitkeep

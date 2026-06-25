@@ -23,15 +23,26 @@ YOUTUBE_CREDENTIALS_FILE = PROJECT_ROOT / "client_secret.json"
 
 GEMINI_MODEL = "gemini-2.5-pro"
 PLACEHOLDER_YOUTUBE_URL = "PLACEHOLDER_YOUTUBE_URL"
+PLACEHOLDER_SPOTIFY_URL = "PLACEHOLDER_SPOTIFY_URL"
 
 BLOG_BASE_URL = os.getenv("BLOG_BASE_URL", "https://townsvillebushwalkingclub.com").rstrip("/")
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "large-v3")
 GEMINI_LOG_LEVEL = os.getenv("GEMINI_WEBAPI_LOG_LEVEL", "INFO")
+SPOTIFY_PODCAST_ID = os.getenv("SPOTIFY_PODCAST_ID", "")
+SPOTIFY_COOKIES_PATH = os.getenv("SPOTIFY_COOKIES_PATH", "spotify-cookies.json")
 
 
 def build_blog_url(slug: str) -> str:
     """Build a Ghost CMS post URL at the site root."""
     return f"{BLOG_BASE_URL}/{slug.strip('/')}/"
+
+
+def spotify_cookies_file() -> Path:
+    """Return the path to Spotify session cookies JSON."""
+    path = Path(SPOTIFY_COOKIES_PATH)
+    if path.is_absolute():
+        return path
+    return PROJECT_ROOT / path
 
 
 def raw_transcript_path_for_episode(episode_filename: str) -> Path:

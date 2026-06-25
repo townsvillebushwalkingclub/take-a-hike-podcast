@@ -5,7 +5,7 @@ from typing import Any
 
 import yaml
 
-from lib.config import PLACEHOLDER_YOUTUBE_URL
+from lib.config import PLACEHOLDER_SPOTIFY_URL, PLACEHOLDER_YOUTUBE_URL
 
 
 def write_blog_post(
@@ -17,12 +17,14 @@ def write_blog_post(
     episode_file: str,
     blog_url: str,
     youtube_url: str = PLACEHOLDER_YOUTUBE_URL,
+    spotify_url: str = PLACEHOLDER_SPOTIFY_URL,
 ) -> None:
     """Write a Ghost-compatible Markdown file with YAML frontmatter."""
     frontmatter = {
         "slug": slug,
         "title": title,
         "youtube_url": youtube_url,
+        "spotify_url": spotify_url,
         "episode_file": episode_file,
         "blog_url": blog_url,
     }
@@ -50,8 +52,8 @@ def read_blog_frontmatter(path: Path) -> dict[str, Any]:
     return yaml.safe_load(parts[1]) or {}
 
 
-def update_blog_youtube_url(path: Path, youtube_url: str) -> None:
-    """Replace the youtube_url in frontmatter after YouTube upload."""
+def _write_frontmatter(path: Path, frontmatter: dict[str, Any]) -> None:
+    """Rewrite a blog file with updated frontmatter."""
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise ValueError(f"Blog file missing frontmatter: {path}")
@@ -60,8 +62,6 @@ def update_blog_youtube_url(path: Path, youtube_url: str) -> None:
     if len(parts) < 3:
         raise ValueError(f"Invalid blog frontmatter: {path}")
 
-    frontmatter = yaml.safe_load(parts[1]) or {}
-    frontmatter["youtube_url"] = youtube_url
     yaml_block = yaml.safe_dump(
         frontmatter,
         default_flow_style=False,
@@ -70,3 +70,30 @@ def update_blog_youtube_url(path: Path, youtube_url: str) -> None:
     ).strip()
     updated = f"---\n{yaml_block}\n---{parts[2]}"
     path.write_text(updated, encoding="utf-8")
+
+
+def update_blog_media_urls(
+    path: Path,
+    *,
+    youtube_url: str | None = None,
+    spotify_url: str | None = None,
+) -> None:
+    """Update youtube_url and/or spotify_url in blog frontmatter."""
+    frontmatter = read_blog_frontmatter(path)
+    if not frontmatter:
+        raise ValueError(f"Blog file missing frontmatter: {path}")
+    if youtube_url is not None:
+        frontmatter["youtube_url"] = youtube_url
+    if spotify_url is not None:
+        frontmatter["spotify_url"] = spotify_url
+    _write_frontmatter(path, frontmatter)
+
+
+def update_blog_youtube_url(path: Path, youtube_url: str) -> None:
+    """Replace the youtube_url in frontmatter after YouTube upload."""
+    update_blog_media_urls(path, youtube_url=youtube_url)
+
+
+def update_blog_spotify_url(path: Path, spotify_url: str) -> None:
+    """Replace the spotify_url in frontmatter after Spotify upload."""
+    update_blog_media_urls(path, spotify_url=spotify_url)

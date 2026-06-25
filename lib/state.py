@@ -36,6 +36,8 @@ def get_episode(data: dict[str, Any], episode_filename: str) -> dict[str, Any]:
             "youtube_id": "",
             "youtube_url": "",
             "youtube_title": "",
+            "spotify_url": "",
+            "spotify_title": "",
         }
     return data[episode_filename]
 
