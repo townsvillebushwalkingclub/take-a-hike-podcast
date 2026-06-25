@@ -223,3 +223,4 @@ temp_portrait.jpg
 !videos/.gitkeep
 lib/__pycache__/
 .vscode/settings.json
+.DS_Store
