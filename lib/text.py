@@ -51,6 +51,8 @@ _TERM_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bMount\s+Elliott\b", re.IGNORECASE), "Mount Elliot"),
     (re.compile(r"\bLake\s+Tinneroo\b", re.IGNORECASE), "Lake Tinaroo"),
     (re.compile(r"\bMingler\s+Range\b", re.IGNORECASE), "Mingela Range"),
+    (re.compile(r"\bEast\s+Sinafa\s+Range\b", re.IGNORECASE), "Eastern Arthur Range"),
+    (re.compile(r"\bEast\s+Sinafa'?s\b", re.IGNORECASE), "Eastern Arthur Range"),
     (re.compile(r"\bMangatree\s+Car\s+Park\b", re.IGNORECASE), "Mango Tree Car Park"),
     (re.compile(r"\bMitch\s+Nissen\b", re.IGNORECASE), "Mitch Nissan"),
     (re.compile(r"\bGod\s+Zone\b", re.IGNORECASE), "Godzone"),

@@ -6,6 +6,9 @@ CANONICAL_FULL_NAME = "Luen Warneke"
 CANONICAL_FIRST_NAME = "Luen"
 CHERRY_JUDGE_FULL_NAME = "Cherry Judge"
 
+# "Luen, you're..." misheard as a surname.
+_LUEN_YOURE_PATTERN = re.compile(r"\bLuen\s+Yorke\b", re.IGNORECASE)
+
 # Full name: misheard first name + optional "and" + misheard surname.
 _FULL_NAME_PATTERN = re.compile(
     r"\b(?:Llewyn|Lewyn|Lewin|Luan|Luen|Lil)\s+(?:and\s+)?"
@@ -48,7 +51,8 @@ def fix_names(text: str) -> str:
     if not text:
         return text
 
-    corrected = _FULL_NAME_PATTERN.sub(CANONICAL_FULL_NAME, text)
+    corrected = _LUEN_YOURE_PATTERN.sub("Luen you're", text)
+    corrected = _FULL_NAME_PATTERN.sub(CANONICAL_FULL_NAME, corrected)
     corrected = _CHERRY_AND_LUEN_PATTERN.sub(f"Cherry, {CANONICAL_FIRST_NAME}", corrected)
     corrected = _CHERRY_JUDGE_PATTERN.sub(CHERRY_JUDGE_FULL_NAME, corrected)
     corrected = _POSSESSIVE_FIRST_NAME_PATTERN.sub(f"{CANONICAL_FIRST_NAME}'s", corrected)
