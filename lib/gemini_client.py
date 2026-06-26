@@ -136,74 +136,152 @@ def generate_json_sync(prompt: str, model: type[T], retries: int = 3) -> T:
     return asyncio.run(_run())
 
 
+async def _save_first_generated_image(
+    client,
+    response,
+    output_dir: Path,
+    filename: str,
+) -> tuple[str, Path]:
+    """Extract and save the first GeneratedImage from a model response."""
+    from gemini_webapi import GeneratedImage
+
+    generated = [
+        image for image in (response.images or []) if isinstance(image, GeneratedImage)
+    ]
+    if not generated:
+        detail = (response.text or "").strip() or "No generated image in response"
+        if _is_image_limit_response(detail):
+            raise RuntimeError(f"IMAGE_LIMIT:{detail[:500]}")
+        raise RuntimeError(f"NO_IMAGE:{detail[:500]}")
+
+    image = generated[0]
+    saved_path = Path(
+        await image.save(
+            path=str(output_dir),
+            filename=filename,
+            full_size=True,
+            verbose=True,
+        )
+    )
+    return response.text or "", saved_path
+
+
+def _build_single_shot_prompt(
+    template_image: Path,
+    extra_images: list[Path],
+    prompt: str,
+) -> str:
+    """Combine file context and creative brief into one image-generation request."""
+    lines = [
+        "Use the image generation tool to GENERATE one new podcast cover image.",
+        "",
+        "Attached reference images:",
+        f"- {template_image.name}: Take A Hike / LiSTNR podcast cover template (brand reference)",
+    ]
+    for ref in extra_images:
+        lines.append(
+            f"- {ref.name}: Townsville Bushwalking Club logo (incorporate into the design)"
+        )
+    lines.extend(["", prompt])
+    return "\n".join(lines)
+
+
+def _build_chat_setup_message(template_image: Path, extra_images: list[Path]) -> str:
+    lines = [
+        "Reference images for a Take A Hike podcast episode cover:",
+        f"1. Podcast cover template ({template_image.name})",
+    ]
+    for index, ref in enumerate(extra_images, start=2):
+        lines.append(f"{index}. Townsville Bushwalking Club logo ({ref.name})")
+    lines.append("I will ask you to GENERATE a new cover in the next message.")
+    return "\n".join(lines)
+
+
 async def generate_image_edit(
     prompt: str,
     *,
     template_image: Path,
+    reference_images: list[Path] | None = None,
     output_dir: Path,
     filename: str,
     retries: int = 3,
 ) -> tuple[str, Path]:
     """Edit an image with Gemini Nano Banana and return response text plus saved path."""
-    from gemini_webapi import GeneratedImage
-
     if not template_image.is_file():
         raise FileNotFoundError(f"Template image not found: {template_image}")
+
+    extra_images = [path for path in (reference_images or []) if path.is_file()]
+    missing_refs = [path for path in (reference_images or []) if not path.is_file()]
+    if missing_refs:
+        missing = ", ".join(str(path) for path in missing_refs)
+        raise FileNotFoundError(f"Reference image(s) not found: {missing}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     client = await _get_client()
     image_model = resolve_gemini_model(GEMINI_IMAGE_MODEL)
+    upload_files = [template_image, *extra_images]
+    single_shot_prompt = _build_single_shot_prompt(template_image, extra_images, prompt)
+    chat_setup = _build_chat_setup_message(template_image, extra_images)
+    chat_prompt = f"Use the image generation tool to GENERATE a new podcast cover image. {prompt}"
+
     last_error = None
+    saw_limit = False
 
     for attempt in range(retries):
-        try:
-            chat = client.start_chat(model=image_model)
-            await chat.send_message(
-                "Here is a 1200x630 social sharing image template for the Take A Hike podcast. "
-                "Keep this branding in mind for the next request.",
-                files=[template_image],
-                temporary=False,
-            )
-            response = await chat.send_message(
-                f"Use the image generation tool to GENERATE a new edited version of that template. {prompt}",
-                temporary=False,
-            )
-            generated = [
-                image for image in (response.images or []) if isinstance(image, GeneratedImage)
-            ]
-            if not generated:
-                detail = (response.text or "").strip() or "No generated image in response"
-                if _is_image_limit_response(detail):
-                    raise RuntimeError(
-                        "Gemini refused image generation (reported a limit). "
-                        "This can be a separate image-gen quota from chat usage, or the model "
-                        "may not have invoked Nano Banana. Try again in Gemini web UI first, "
-                        f"or wait and retry later. Response: {detail[:500]}"
+        strategies = (
+            ("single-shot", single_shot_prompt),
+            ("chat", chat_prompt),
+        )
+        for strategy_name, request_prompt in strategies:
+            try:
+                if strategy_name == "single-shot":
+                    response = await client.generate_content(
+                        request_prompt,
+                        files=upload_files,
+                        model=image_model,
+                        temporary=False,
                     )
-                raise RuntimeError(
-                    "Gemini did not return a generated image. "
-                    f"Response: {detail[:500]}"
-                )
+                else:
+                    chat = client.start_chat(model=image_model)
+                    await chat.send_message(
+                        chat_setup,
+                        files=upload_files,
+                        temporary=False,
+                    )
+                    response = await chat.send_message(request_prompt, temporary=False)
 
-            image = generated[0]
-            saved_path = Path(
-                await image.save(
-                    path=str(output_dir),
-                    filename=filename,
-                    full_size=True,
-                    verbose=True,
+                return await _save_first_generated_image(
+                    client, response, output_dir, filename
                 )
-            )
-            return response.text or "", saved_path
-        except Exception as exc:
-            last_error = exc
-            if _is_image_limit_response(str(exc)) or "Unknown model name" in str(exc):
-                break
-            if attempt < retries - 1:
-                wait_time = 30 * (attempt + 1)
-                print(f"Gemini image request failed ({exc}). Retrying in {wait_time}s...")
-                await asyncio.sleep(wait_time)
+            except RuntimeError as exc:
+                message = str(exc)
+                if message.startswith("IMAGE_LIMIT:"):
+                    saw_limit = True
+                    last_error = RuntimeError(message.removeprefix("IMAGE_LIMIT:"))
+                    print(f"  {strategy_name}: image limit response, trying next approach...")
+                    continue
+                if message.startswith("NO_IMAGE:"):
+                    last_error = RuntimeError(message.removeprefix("NO_IMAGE:"))
+                    print(f"  {strategy_name}: no generated image, trying next approach...")
+                    continue
+                last_error = exc
+            except Exception as exc:
+                last_error = exc
 
+        if saw_limit and attempt == retries - 1:
+            break
+        if attempt < retries - 1:
+            wait_time = 30 * (attempt + 1)
+            print(f"Gemini image request failed ({last_error}). Retrying in {wait_time}s...")
+            await asyncio.sleep(wait_time)
+
+    if saw_limit:
+        raise RuntimeError(
+            "Gemini refused image generation (reported a limit). "
+            "Image generation has its own quota separate from chat. "
+            "Try generating a test image at gemini.google.com, wait for the limit to reset, "
+            f"then retry. Last response: {last_error}"
+        )
     raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
 
 
@@ -211,6 +289,7 @@ def generate_image_edit_sync(
     prompt: str,
     *,
     template_image: Path,
+    reference_images: list[Path] | None = None,
     output_dir: Path,
     filename: str,
     retries: int = 3,
@@ -222,6 +301,7 @@ def generate_image_edit_sync(
             return await generate_image_edit(
                 prompt,
                 template_image=template_image,
+                reference_images=reference_images,
                 output_dir=output_dir,
                 filename=filename,
                 retries=retries,

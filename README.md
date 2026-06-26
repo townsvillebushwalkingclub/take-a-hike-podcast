@@ -43,7 +43,8 @@ take-a-hike-podcast/
 ├── requirements.txt
 ├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
 ├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
-└── TAH_APP_SHARING_1200x630.jpg  # Social sharing template for generate_blog_image.py
+├── TAH_Podcast_Cover.jpg  # Cover template for generate_blog_image.py
+└── townsville-bushwalking-club-logo.png  # Club logo passed to cover image generation
 ```
 
 ## Installation & Setup
@@ -176,7 +177,7 @@ Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). Afte
 
 ### Sharing Images
 
-`generate_blog_image.py` sends `TAH_APP_SHARING_1200x630.jpg` to Gemini and uses **Nano Banana** to edit the template with subtle episode-specific elements (wildlife, waterfalls, gorge country, etc.) while keeping the LiSTNR logo and "TAKE A HIKE" branding.
+`generate_blog_image.py` sends `TAH_Podcast_Cover.jpg` and `townsville-bushwalking-club-logo.png` to Gemini and uses **Nano Banana** to generate a creative episode-specific cover inspired by the template, with the club logo incorporated.
 
 Output is saved to `images/{slug}-sharing.jpg` and tracked in `podcasts_data.json` as `sharing_image_file`.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate episode-specific social sharing images via Gemini Nano Banana."""
+"""Generate episode-specific podcast cover images via Gemini Nano Banana."""
 
 import argparse
 import sys
@@ -10,19 +10,33 @@ from lib.blog import (
     format_episode_title,
     read_blog_frontmatter,
 )
-from lib.config import BLOG_IMAGES_DIR, BLOGS_DIR, GEMINI_IMAGE_MODEL, SHARING_IMAGE_TEMPLATE, ensure_directories
+from lib.config import (
+    BLOG_IMAGES_DIR,
+    BLOGS_DIR,
+    CLUB_LOGO_FILE,
+    COVER_IMAGE_TEMPLATE,
+    GEMINI_IMAGE_MODEL,
+    ensure_directories,
+)
 from lib.gemini_client import generate_image_edit_sync
 from lib.state import get_episode, load_state, save_state
 
-IMAGE_PROMPT = """Keep the overall layout and branding intact:
-- LiSTNR logo at the top
-- "TAKE A HIKE" hand-lettered title style and placement
-- Hiker on rocky outlook over green valley with golden-hour light
-- 1200x630 landscape aspect ratio suitable for link previews
+IMAGE_PROMPT = """Design a striking podcast cover / social sharing image for this episode of "Take A Hike" (LiSTNR), published on the Townsville Bushwalking Club blog.
 
-Add subtle visual elements that reflect this specific episode/blog post. Integrate them into the landscape naturally—for example regional wildlife, waterfalls, rainforest, gorge country, camping gear, or track features mentioned below. Do not create a busy collage. Do not obscure the LiSTNR logo or main title.
+You have strong creative freedom. Use the attached podcast cover template as inspiration—not a rigid frame. Feel free to reinterpret the scene, composition, colour palette, lighting, and mood. Make each episode feel distinct and evocative while still recognisable as the same show.
 
-Blog post:
+Brand anchors (keep these, but you may stylise them):
+- LiSTNR branding should remain visible
+- "Take A Hike" show identity — title treatment can evolve but must stay readable
+- Incorporate the Townsville Bushwalking Club logo from the reference images (badge, corner mark, footer strip, or woven into the landscape — your creative choice)
+
+Creative direction:
+- Let the episode topics below drive atmosphere: wildlife, waterfalls, rainforest, gorge country, islands, peaks, camping, gear, seasons, or local Townsville/Paluma adventures
+- North Queensland hiking aesthetic: tropical light, escarpments, reef-and-rainforest energy, adventure and warmth
+- Bold visual storytelling is welcome — dramatic skies, depth, texture, and a cover someone would want to click
+- Landscape orientation suitable for link previews (around 1200x630)
+
+Episode context:
 Title: {title}
 Episode: {episode_title}
 Excerpt: {excerpt}
@@ -91,10 +105,11 @@ def process_blog(
     state: dict,
     *,
     template: Path,
+    club_logo: Path,
     output_dir: Path,
     force: bool = False,
 ) -> None:
-    """Generate a sharing image for one blog post."""
+    """Generate a cover image for one blog post."""
     frontmatter = read_blog_frontmatter(blog_path)
     slug = frontmatter.get("slug") or blog_path.stem
     output_path = output_dir / f"{slug}-sharing.jpg"
@@ -105,24 +120,28 @@ def process_blog(
         return
 
     if not template.is_file():
-        raise FileNotFoundError(f"Template image not found: {template}")
+        raise FileNotFoundError(f"Cover template not found: {template}")
+    if not club_logo.is_file():
+        raise FileNotFoundError(f"Club logo not found: {club_logo}")
 
     prompt = build_prompt(blog_path, episode_filename)
-    print(f"Generating sharing image for {slug}...")
+    print(f"Generating cover image for {slug}...")
     print(f"  Model: {GEMINI_IMAGE_MODEL}")
     print(f"  Template: {template.name}")
+    print(f"  Club logo: {club_logo.name}")
     print(f"  Episode: {format_episode_title(episode_filename)}")
 
     _, saved_path = generate_image_edit_sync(
         prompt,
         template_image=template,
+        reference_images=[club_logo],
         output_dir=output_dir,
         filename=f"{slug}-sharing.jpg",
     )
 
     relative_path = f"images/{saved_path.name}"
     episode["sharing_image_file"] = relative_path
-    print(f"Saved sharing image: {saved_path}")
+    print(f"Saved cover image: {saved_path}")
 
 
 def iter_episodes_with_blogs(state: dict) -> list[tuple[Path, str]]:
@@ -150,7 +169,7 @@ def iter_episodes_with_blogs(state: dict) -> list[tuple[Path, str]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Generate episode-specific 1200x630 sharing images with Gemini Nano Banana"
+        description="Generate episode-specific podcast cover images with Gemini Nano Banana"
     )
     parser.add_argument(
         "episode",
@@ -161,18 +180,24 @@ def main() -> int:
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Generate sharing images for every episode that has a blog",
+        help="Generate cover images for every episode that has a blog",
     )
     parser.add_argument(
         "--force",
         action="store_true",
-        help="Regenerate even if the sharing image already exists",
+        help="Regenerate even if the cover image already exists",
     )
     parser.add_argument(
         "--template",
         type=Path,
-        default=SHARING_IMAGE_TEMPLATE,
-        help=f"Base sharing image template (default: {SHARING_IMAGE_TEMPLATE.name})",
+        default=COVER_IMAGE_TEMPLATE,
+        help=f"Podcast cover template (default: {COVER_IMAGE_TEMPLATE.name})",
+    )
+    parser.add_argument(
+        "--club-logo",
+        type=Path,
+        default=CLUB_LOGO_FILE,
+        help=f"Townsville Bushwalking Club logo (default: {CLUB_LOGO_FILE.name})",
     )
     parser.add_argument(
         "--output-dir",
@@ -203,6 +228,7 @@ def main() -> int:
                     episode_filename,
                     state,
                     template=args.template,
+                    club_logo=args.club_logo,
                     output_dir=args.output_dir,
                     force=args.force,
                 )
@@ -221,12 +247,13 @@ def main() -> int:
             episode_filename,
             state,
             template=args.template,
+            club_logo=args.club_logo,
             output_dir=args.output_dir,
             force=args.force,
         )
         save_state(state)
 
-    print("Sharing image generation complete.")
+    print("Cover image generation complete.")
     return 0
 
 
