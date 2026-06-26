@@ -8,12 +8,24 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from lib.config import GEMINI_LOG_LEVEL, GEMINI_MODEL
+from lib.config import GEMINI_IMAGE_MODEL, GEMINI_LOG_LEVEL, GEMINI_MODEL, resolve_gemini_model
 
 T = TypeVar("T", bound=BaseModel)
 
 _client = None
 _client_loop: asyncio.AbstractEventLoop | None = None
+
+_IMAGE_LIMIT_PHRASES = (
+    "limit resets",
+    "usage limit",
+    "check your usage",
+    "image generation limit",
+)
+
+
+def _is_image_limit_response(text: str) -> bool:
+    lowered = text.lower()
+    return any(phrase in lowered for phrase in _IMAGE_LIMIT_PHRASES)
 
 
 async def _close_client() -> None:
@@ -140,23 +152,37 @@ async def generate_image_edit(
 
     output_dir.mkdir(parents=True, exist_ok=True)
     client = await _get_client()
+    image_model = resolve_gemini_model(GEMINI_IMAGE_MODEL)
     last_error = None
 
     for attempt in range(retries):
         try:
-            response = await client.generate_content(
-                prompt,
+            chat = client.start_chat(model=image_model)
+            await chat.send_message(
+                "Here is a 1200x630 social sharing image template for the Take A Hike podcast. "
+                "Keep this branding in mind for the next request.",
                 files=[template_image],
-                temporary=True,
+                temporary=False,
+            )
+            response = await chat.send_message(
+                f"Use the image generation tool to GENERATE a new edited version of that template. {prompt}",
+                temporary=False,
             )
             generated = [
                 image for image in (response.images or []) if isinstance(image, GeneratedImage)
             ]
             if not generated:
                 detail = (response.text or "").strip() or "No generated image in response"
+                if _is_image_limit_response(detail):
+                    raise RuntimeError(
+                        "Gemini refused image generation (reported a limit). "
+                        "This can be a separate image-gen quota from chat usage, or the model "
+                        "may not have invoked Nano Banana. Try again in Gemini web UI first, "
+                        f"or wait and retry later. Response: {detail[:500]}"
+                    )
                 raise RuntimeError(
                     "Gemini did not return a generated image. "
-                    f"Ensure image generation is enabled on your account. Response: {detail[:500]}"
+                    f"Response: {detail[:500]}"
                 )
 
             image = generated[0]
@@ -171,6 +197,8 @@ async def generate_image_edit(
             return response.text or "", saved_path
         except Exception as exc:
             last_error = exc
+            if _is_image_limit_response(str(exc)) or "Unknown model name" in str(exc):
+                break
             if attempt < retries - 1:
                 wait_time = 30 * (attempt + 1)
                 print(f"Gemini image request failed ({exc}). Retrying in {wait_time}s...")

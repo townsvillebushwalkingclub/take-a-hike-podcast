@@ -10,13 +10,11 @@ from lib.blog import (
     format_episode_title,
     read_blog_frontmatter,
 )
-from lib.config import BLOG_IMAGES_DIR, BLOGS_DIR, SHARING_IMAGE_TEMPLATE, ensure_directories
+from lib.config import BLOG_IMAGES_DIR, BLOGS_DIR, GEMINI_IMAGE_MODEL, SHARING_IMAGE_TEMPLATE, ensure_directories
 from lib.gemini_client import generate_image_edit_sync
 from lib.state import get_episode, load_state, save_state
 
-IMAGE_PROMPT = """You are creating a social sharing image (1200x630) for the "Take A Hike" podcast blog on the Townsville Bushwalking Club site.
-
-Use Nano Banana image generation to EDIT the attached template image. Keep the overall layout and branding intact:
+IMAGE_PROMPT = """Keep the overall layout and branding intact:
 - LiSTNR logo at the top
 - "TAKE A HIKE" hand-lettered title style and placement
 - Hiker on rocky outlook over green valley with golden-hour light
@@ -30,9 +28,7 @@ Episode: {episode_title}
 Excerpt: {excerpt}
 
 Key topics from the blog:
-{body_preview}
-
-Generate one edited image."""
+{body_preview}"""
 
 
 def resolve_blog_path(
@@ -113,6 +109,7 @@ def process_blog(
 
     prompt = build_prompt(blog_path, episode_filename)
     print(f"Generating sharing image for {slug}...")
+    print(f"  Model: {GEMINI_IMAGE_MODEL}")
     print(f"  Template: {template.name}")
     print(f"  Episode: {format_episode_title(episode_filename)}")
 

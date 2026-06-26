@@ -29,6 +29,8 @@ take-a-hike-podcast/
 ├── images/                 # Episode-specific 1200x630 sharing images (Nano Banana)
 ├── videos/                 # Generated portrait videos (.mp4)
 ├── lib/                    # Shared config, state, Gemini, blog, YouTube, Spotify helpers
+├── vendor/
+│   └── gemini-webapi/      # Git submodule: HanaokaYuzu/Gemini-API (gemini-webapi)
 ├── podcasts_data.json      # Processing metadata only (paths and flags)
 ├── transcribe.py
 ├── clean_transcripts.py
@@ -46,7 +48,22 @@ take-a-hike-podcast/
 
 ## Installation & Setup
 
-### 1. Install Dependencies
+### 1. Clone and Install Dependencies
+
+This project uses [Gemini-API](https://github.com/HanaokaYuzu/Gemini-API) as a git submodule (`vendor/gemini-webapi`). Clone with submodules, or initialise them after cloning:
+
+```bash
+git clone --recurse-submodules https://github.com/YOUR_ORG/take-a-hike-podcast.git
+cd take-a-hike-podcast
+```
+
+If you already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+Then install Python dependencies (includes the submodule as an editable package):
 
 ```bash
 pip install -r requirements.txt

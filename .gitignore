@@ -215,6 +215,7 @@ youtube_credentials.json
 client_secret.json
 spotify-cookies.json
 gemini_cookies.json
+gemini_cache/
 temp_portrait.jpg
 !transcripts/.gitkeep
 !transcripts/raw/.gitkeep

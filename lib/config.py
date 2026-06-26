@@ -24,6 +24,29 @@ YOUTUBE_TOKEN_FILE = PROJECT_ROOT / "youtube_token.json"
 YOUTUBE_CREDENTIALS_FILE = PROJECT_ROOT / "client_secret.json"
 
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-pro")
+GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-pro")
+
+# Custom header for gemini-3.1-pro (not yet in older gemini-webapi model registries).
+GEMINI_3_1_PRO_MODEL = {
+    "model_name": "gemini-3.1-pro",
+    "model_header": {
+        "x-goog-ext-525001261-jspb": (
+            '[1,null,null,null,"e6fa609c3fa255c0",null,null,1,[4,5,6,8],null,null,2,null,null,3,1,'
+            '"B49464E6-4170-4708-815E-C3C14E8D5E85"]'
+        ),
+        "x-goog-ext-73010989-jspb": "[0]",
+        "x-goog-ext-73010990-jspb": "[0,0,0]",
+    },
+}
+
+
+def resolve_gemini_model(model: str) -> str | dict:
+    """Map friendly model names to values gemini-webapi accepts."""
+    if model in {"gemini-3.1-pro", "gemini-3.1-pro-standard"}:
+        return GEMINI_3_1_PRO_MODEL
+    return model
+
+
 PLACEHOLDER_YOUTUBE_URL = "PLACEHOLDER_YOUTUBE_URL"
 PLACEHOLDER_SPOTIFY_URL = "PLACEHOLDER_SPOTIFY_URL"
 

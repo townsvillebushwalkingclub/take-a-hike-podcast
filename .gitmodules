@@ -1,0 +1,4 @@
+[submodule "vendor/gemini-webapi"]
+	path = vendor/gemini-webapi
+	url = https://github.com/HanaokaYuzu/Gemini-API.git
+	branch = master
