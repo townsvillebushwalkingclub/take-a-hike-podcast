@@ -1,5 +1,6 @@
 """Blog post file helpers with YAML frontmatter."""
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -7,12 +8,39 @@ import yaml
 
 from lib.config import PLACEHOLDER_SPOTIFY_URL, PLACEHOLDER_YOUTUBE_URL
 
+MAX_EXCERPT_LENGTH = 250
+
+
+def format_episode_title(episode_file: str) -> str:
+    """Derive a readable episode title from the MP3 filename."""
+    name = Path(episode_file).stem
+    for prefix in ("Take a Hike - ", "Take a Hike, ", "Take a Hike-"):
+        if name.startswith(prefix):
+            name = name[len(prefix) :]
+            break
+    name = name.replace(" _ ", " and ")
+    name = re.sub(r"(?<=\w)_s\b", "'s", name)
+    name = re.sub(r"(?<=\w)_t\b", "'t", name)
+    name = name.replace(" _ ", " ").replace("_", " ")
+    name = re.sub(r"\s+", " ", name).strip()
+    return name
+
+
+def normalize_excerpt(excerpt: str) -> str:
+    """Trim excerpt to Ghost SEO limit, breaking at a word boundary when possible."""
+    text = excerpt.strip()
+    if len(text) <= MAX_EXCERPT_LENGTH:
+        return text
+    trimmed = text[: MAX_EXCERPT_LENGTH - 3].rsplit(" ", 1)[0]
+    return f"{trimmed}..."
+
 
 def write_blog_post(
     path: Path,
     *,
     slug: str,
     title: str,
+    excerpt: str,
     body: str,
     episode_file: str,
     blog_url: str,
@@ -23,6 +51,7 @@ def write_blog_post(
     frontmatter = {
         "slug": slug,
         "title": title,
+        "excerpt": normalize_excerpt(excerpt),
         "youtube_url": youtube_url,
         "spotify_url": spotify_url,
         "episode_file": episode_file,

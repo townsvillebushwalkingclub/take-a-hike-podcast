@@ -21,7 +21,7 @@ YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 YOUTUBE_TOKEN_FILE = PROJECT_ROOT / "youtube_token.json"
 YOUTUBE_CREDENTIALS_FILE = PROJECT_ROOT / "client_secret.json"
 
-GEMINI_MODEL = "gemini-2.5-pro"
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-pro")
 PLACEHOLDER_YOUTUBE_URL = "PLACEHOLDER_YOUTUBE_URL"
 PLACEHOLDER_SPOTIFY_URL = "PLACEHOLDER_SPOTIFY_URL"
 

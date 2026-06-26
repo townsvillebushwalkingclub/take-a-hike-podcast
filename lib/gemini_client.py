@@ -1,4 +1,4 @@
-"""Gemini 2.5 Pro client wrapper using gemini-webapi."""
+"""Gemini 3 Pro client wrapper using gemini-webapi."""
 
 import asyncio
 import os
@@ -12,6 +12,20 @@ from lib.config import GEMINI_LOG_LEVEL, GEMINI_MODEL
 T = TypeVar("T", bound=BaseModel)
 
 _client = None
+_client_loop: asyncio.AbstractEventLoop | None = None
+
+
+async def _close_client() -> None:
+    """Close the shared client and allow a fresh one on the next event loop."""
+    global _client, _client_loop
+    if _client is None:
+        return
+    try:
+        await _client.close()
+    except Exception:
+        pass
+    _client = None
+    _client_loop = None
 
 
 def _configure_cookie_path() -> None:
@@ -32,7 +46,11 @@ def _get_credentials() -> tuple[str, str]:
 
 
 async def _get_client():
-    global _client
+    global _client, _client_loop
+    loop = asyncio.get_running_loop()
+    if _client is not None and _client_loop is not loop:
+        await _close_client()
+
     if _client is not None:
         return _client
 
@@ -45,6 +63,7 @@ async def _get_client():
     client = GeminiClient(secure_1psid, secure_1psidts, proxy=None)
     await client.init(timeout=120, auto_close=False, auto_refresh=True)
     _client = client
+    _client_loop = loop
     return _client
 
 
@@ -94,4 +113,11 @@ async def generate_json(prompt: str, model: type[T], retries: int = 3) -> T:
 
 def generate_json_sync(prompt: str, model: type[T], retries: int = 3) -> T:
     """Synchronous wrapper for generate_json."""
-    return asyncio.run(generate_json(prompt, model, retries=retries))
+
+    async def _run() -> T:
+        try:
+            return await generate_json(prompt, model, retries=retries)
+        finally:
+            await _close_client()
+
+    return asyncio.run(_run())

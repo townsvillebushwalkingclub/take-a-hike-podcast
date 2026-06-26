@@ -10,7 +10,7 @@ The pipeline is split into six independent scripts:
 
 1. **`transcribe.py`** — Transcribe audio to **raw** plain text using [openai-whisper](https://github.com/openai/whisper) (default: `large-v3`)
 2. **`clean_transcripts.py`** — Apply name and place-name fixes to raw transcripts, writing cleaned copies
-3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 2.5 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
+3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 3 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
 4. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
 5. **`create_videos.py`** — Create portrait videos for social media
 6. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
@@ -139,12 +139,13 @@ Markdown files with YAML frontmatter in `blogs/`, compatible with [Ghost CMS](ht
 
 ```markdown
 ---
-slug: walkers-creek-2026
+slug: walkers-creek-paluma
 title: "Walkers Creek - Trip Report"
+excerpt: "Short SEO summary weaving in the episode topic from the audio filename."
 youtube_url: "PLACEHOLDER_YOUTUBE_URL"
 spotify_url: "PLACEHOLDER_SPOTIFY_URL"
 episode_file: "Take a Hike - Walkers Creek.mp3"
-blog_url: "https://townsvillebushwalkingclub.com/walkers-creek-2026/"
+blog_url: "https://townsvillebushwalkingclub.com/walkers-creek-paluma/"
 ---
 
 Blog body in Markdown...
@@ -202,9 +203,9 @@ Blog, Spotify, and YouTube scripts still apply `clean_text()` to AI-generated ti
     "whisper_model": "large-v3",
     "transcript_file": "transcripts/Take a Hike - Topic.txt",
     "transcript_done": true,
-    "blog_slug": "topic-slug-2026",
-    "blog_file": "blogs/topic-slug-2026.md",
-    "blog_url": "https://townsvillebushwalkingclub.com/topic-slug-2026/",
+    "blog_slug": "topic-slug",
+    "blog_file": "blogs/topic-slug.md",
+    "blog_url": "https://townsvillebushwalkingclub.com/topic-slug/",
     "spotify_url": "",
     "spotify_title": "",
     "youtube_id": "",
