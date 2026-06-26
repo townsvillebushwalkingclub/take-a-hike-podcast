@@ -25,13 +25,20 @@ _LUEN_YOURE_PATTERN = re.compile(r"\bLuen\s+Yorke\b", re.IGNORECASE)
 # Full name: misheard first name + optional "and" + misheard surname.
 _FULL_NAME_PATTERN = re.compile(
     r"\b(?:Llewyn|Lewyn|Lewin|Luan|Luen|Lil)\s+(?:and\s+)?"
-    r"(?:Warnakie|Warneke|Warnecke|Warnakey|Warnocky|Warnicky|Warrneke|Wernake|Warrnake)\b",
+    r"(?:Warnakie|Warneke|Warnecke|Warnakey|Warnicke|Warnocky|Warnicky|Warrneke|Wernake|Warrnake)\b",
     re.IGNORECASE,
 )
 
 # "Cherry Lewin" / "Cherry Lewyn" when Luen is addressed alongside Cherry.
 _CHERRY_AND_LUEN_PATTERN = re.compile(
     r"\b[Cc]herry\s+(?:Llewyn|Lewyn|Lewin|Luan|Lil)\b",
+    re.IGNORECASE,
+)
+
+# Host first name: Sherry / Jira -> Cherry.
+_SHERRY_PATTERN = re.compile(r"\bSherry\b", re.IGNORECASE)
+_JIRA_HAVE_YOU_SEEN_PATTERN = re.compile(
+    r"\bJira,\s+have you seen\b",
     re.IGNORECASE,
 )
 
@@ -72,6 +79,8 @@ def fix_names(text: str) -> str:
     corrected = _WILFRID_POSSESSIVE_PATTERN.sub("Wilfred's", corrected)
     corrected = _FULL_NAME_PATTERN.sub(CANONICAL_FULL_NAME, corrected)
     corrected = _CHERRY_AND_LUEN_PATTERN.sub(f"Cherry, {CANONICAL_FIRST_NAME}", corrected)
+    corrected = _JIRA_HAVE_YOU_SEEN_PATTERN.sub("Cherry, have you seen", corrected)
+    corrected = _SHERRY_PATTERN.sub("Cherry", corrected)
     corrected = _CHERRY_JUDGE_PATTERN.sub(CHERRY_JUDGE_FULL_NAME, corrected)
     corrected = _POSSESSIVE_FIRST_NAME_PATTERN.sub(f"{CANONICAL_FIRST_NAME}'s", corrected)
     corrected = _LIL_AND_PATTERN.sub(CANONICAL_FIRST_NAME, corrected)
