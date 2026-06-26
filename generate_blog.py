@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from lib.blog import format_episode_title, normalize_excerpt, write_blog_post
-from lib.config import BLOGS_DIR, PLACEHOLDER_SPOTIFY_URL, build_blog_url, ensure_directories
+from lib.config import BLOGS_DIR, GEMINI_MODEL, PLACEHOLDER_SPOTIFY_URL, build_blog_url, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
@@ -77,7 +77,7 @@ def process_episode(episode_filename: str, state: dict, force: bool = False) -> 
             return
 
     transcript = read_clean_transcript(episode, episode_filename)
-    print(f"Generating blog post for {episode_filename}...")
+    print(f"Generating blog post for {episode_filename} (model: {GEMINI_MODEL})...")
 
     episode_title = format_episode_title(episode_filename)
     prompt = BLOG_PROMPT.format(

@@ -110,7 +110,7 @@ async def generate_json(prompt: str, model: type[T], retries: int = 3) -> T:
         try:
             response = await client.generate_content(
                 prompt,
-                model=GEMINI_MODEL,
+                model=resolve_gemini_model(GEMINI_MODEL),
                 temporary=True,
             )
             return parse_model_json(response.text, model)

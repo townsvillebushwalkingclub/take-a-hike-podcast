@@ -1,53 +1,49 @@
 ---
 slug: cassowaries-paluma-godwins-peak
-title: Cassowaries in Paluma & Hiking Godwin's Peak
-excerpt: "Are there any cassowaries in Paluma? This episode explores cassowary hotspots, how to spot the signs, and hiking Godwin's Peak for 360-degree views and Twin Falls."
+title: Are There Cassowaries in Paluma & Godwin's Peak?
+excerpt: Wondering if there are any cassowaries in Paluma? Join Blair, Cherry Judge
+  and Luen Warneke as they discuss rare cassowary sightings, how to spot their tracks,
+  and a complete guide to hiking Godwin's Peak and Pick Falls in the Paluma Range.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
 spotify_url: PLACEHOLDER_SPOTIFY_URL
 episode_file: Take a Hike - Are there any cassowaries in Paluma _ Godwin_s Peak.mp3
 blog_url: https://townsvillebushwalkingclub.com/cassowaries-paluma-godwins-peak/
 ---
 
-In the latest episode of the *Take A Hike* podcast, host Blair Woodcock sits down with Cherry Judge and Luen Warneke from the Townsville Bushwalking Club to tackle two fascinating topics: the elusive cassowaries of Paluma and the stunning trek up to Godwin's Peak.
+## Are There Cassowaries in Paluma?
+
+It sounds like a local myth, but yes, there are cassowaries in the Paluma Range! In our latest episode of the Take A Hike podcast, Blair Woodcock, Cherry Judge, and Luen Warneke dive into the rare but very real sightings of these magnificent birds in our region.
+
+While spotting the bird itself is quite rare, finding the evidence is much more common. Hikers have reported sightings and scat in less-tracked areas, such as the Bambaroo Route, the track from Paluma Dam to Crystal Creek Falls, and near the Station Creek area. 
+
+**How to spot cassowary scat:**
+* It looks like a gluggy, saucer-sized pile of semi-digested fruit and seeds.
+* You will often see blue Quandong seeds in the mix.
+* Keep an extra eye out starting around November, which marks the beginning of their mating season.
+
+### Call for Citizen Science
+There is currently a local research project studying the distribution, abundance, and habitat of cassowaries in the Bluewater, Rollingstone, and Paluma regions. If you spot a cassowary, a footprint, or even just a pile of seeds that looks like scat, please mark a waypoint on your GPS or mapping app. You can report these sightings to the Townsville Bushwalking Club or directly to the Cassowary Citizen Science Project.
 
 ---
 
-## The Elusive Cassowaries of Paluma
+## Hiking Godwin's Peak
 
-Are there actually cassowaries in Paluma? The short answer is **yes**, but catching a glimpse of one feels a bit like a Bigfoot sighting. While the birds themselves are rare and tend to stay far away from high-traffic trails, signs of their presence are surprisingly common if you know what to look for.
-
-### Spotting the Signs
-Both Cherry and Luen have crossed paths with cassowary evidence (and occasionally the bird itself) in the region:
-*   **Locations:** Sightings and tracks have been noted along the Bambaroo Route track, near the Station Creek area, and on the remote trails linking Paluma Dam to Jourama Falls.
-*   **What to look for:** You are far more likely to see cassowary droppings than the bird itself. It looks like a large, gluggy, saucer-sized pile of semi-digested fruit and round seed balls, particularly from their favorite local snack, the blue Quandong.
-
-### Citizen Science: How You Can Help
-There is currently a local research project underway mapping the distribution, abundance, and habitat of cassowaries in the Bluewater, Rollingstone, and Paluma regions. 
-
-If you spot a cassowary or clear evidence of one while out bushwalking, **mark a waypoint on your GPS or AllTrails app** and report it to the Townsville Bushwalking Club to support the **Cassowary Citizen Science Project**. 
-
-> **Hiker Tip:** Keep your distance and stay alert, especially around November when their mating season begins!
-
----
-
-## Conquering Godwin's Peak
-
-If you are looking for a rewarding summit hike in the Paluma Range National Park, Godwin's Peak offers what might be the single best 360-degree view in the entire park. Clear, open, and bare at the top, the summit rewards you with breathtaking views across to Mount Halifax and down to the coastline.
+If you are looking for what might be the best summit in the Paluma Range National Park, Godwin's Peak should be on your list. While Mount Halifax gets a lot of the spotlight, Godwin's Peak offers an incredible 360-degree view thanks to its clear, grassy summit.
 
 ### Getting There
-The trail entry point is located around the Toomulla State Forest area. 
-*   **Access:** Forestry gates block vehicle access, so you will need to park securely on the side of the highway and either walk or ride a mountain bike along the forestry roads to reach the true track start.
-*   **Top Tip:** Wait until rangers have slashed the forestry roads. Otherwise, you can find yourself cycling or walking through head-high grass!
+The entry point is around Toomulla in the State Forest. You will need to park your car on the side of the highway as the turn-off is blocked by gates. From there, you walk or ride your bike in along the forestry roads to reach the trailhead.
 
-### The Trail Breakdown
-Godwin's Peak is an unofficial, volunteer-marked bush track. It is well-worn and mapped on AllTrails and Wanderstories, but you should always carry a offline map and GPS.
+**Top Tip:** Try to time your hike for after the forestry roads have been slashed. Otherwise, you might find yourself wading through head-high grass just to get to the start of the trail!
 
-*   **The Lower Section (Waterfalls):** If you want a shorter, lower-effort walk, you can hike into Twin Falls and Pick Falls (named after an old miner's pick found on-site). This return trip takes about 2.5 to 3 hours and remains relatively flat.
-*   **The Summit Push:** Once you pass Pick Falls, the trail turns strictly vertical. For the average walker, allow a solid **8 hours** for the full return trip.
+### Pick Falls: A Shorter Adventure
+If you do not want to commit to a full 8-hour summit hike, you can do a lovely 2.5 to 3-hour return trip to Pick Falls and Twin Falls. The trail up to this point is relatively flat and easy. Pick Falls actually gets its name from an old, rusty mining pick found there by local hiker Mickle. It is a great spot for a swim, especially just after the rains.
 
-### Crucial Navigation Warning
-It is incredibly easy to overshoot the summit! The main track eventually continues past the peak towards Mount Halifax. When you reach the saddle T-intersection near the top, **you must look to your right** and follow the spur up to the actual grassy summit. If you keep walking straight, you will completely miss it.
+### The Summit Push
+Past the falls, the track goes practically vertical. It is a well-worn, unofficial bush track (which you can find on AllTrails and Wanderstories), but you must take a map and GPS to stay safe.
 
-For those looking for a massive day out, you can link Godwin's Peak and Mount Halifax via a challenging few kilometers of ridge walking (about 1 to 2 hours between peaks) and organize a car shuttle for the return.
+**Crucial Navigation Warning:** It is very easy to miss the summit! The track eventually comes up to a saddle T-intersection. The path straight ahead will overshoot the summit and take you towards Mount Halifax. You must explicitly look right at the intersection to head up to the Godwin's Peak summit.
 
-For maps, photos of Pick Falls, and more detailed route descriptions, check out **wanderstories.space** before you head out. Stay safe on the trails, and happy hiking!
+### Two for One: Godwin's and Halifax
+Feeling energetic? You can bag two peaks in one day. The trail connects Godwin's Peak to Mount Halifax. It is an uphill trek from Godwin's that takes about an hour or two. You can complete the circuit with a car shuttle at the highway. 
+
+No matter what trail you choose this weekend, pack your GPS, watch out for cassowary scat, and happy hiking!

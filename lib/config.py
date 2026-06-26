@@ -23,7 +23,7 @@ YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 YOUTUBE_TOKEN_FILE = PROJECT_ROOT / "youtube_token.json"
 YOUTUBE_CREDENTIALS_FILE = PROJECT_ROOT / "client_secret.json"
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3-pro")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-pro")
 GEMINI_IMAGE_MODEL = os.getenv("GEMINI_IMAGE_MODEL", "gemini-3.1-pro")
 
 # Custom header for gemini-3.1-pro (not yet in older gemini-webapi model registries).
