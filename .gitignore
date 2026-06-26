@@ -222,6 +222,7 @@ temp_portrait.jpg
 *.mp3
 *.mp4
 !videos/.gitkeep
+!images/.gitkeep
 lib/__pycache__/
 .vscode/settings.json
 .DS_Store

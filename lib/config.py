@@ -15,6 +15,8 @@ RAW_TRANSCRIPTS_DIR = TRANSCRIPTS_DIR / "raw"
 BLOGS_DIR = PROJECT_ROOT / "blogs"
 VIDEOS_DIR = PROJECT_ROOT / "videos"
 GRAPHIC_FILE = PROJECT_ROOT / "TAH_Podcast_Graphics.jpg"
+SHARING_IMAGE_TEMPLATE = PROJECT_ROOT / "TAH_APP_SHARING_1200x630.jpg"
+BLOG_IMAGES_DIR = PROJECT_ROOT / "images"
 JSON_FILE = PROJECT_ROOT / "podcasts_data.json"
 
 YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
@@ -70,5 +72,5 @@ def video_path_for_episode(episode_filename: str) -> Path:
 
 def ensure_directories() -> None:
     """Create output directories if they do not exist."""
-    for directory in (RAW_TRANSCRIPTS_DIR, TRANSCRIPTS_DIR, BLOGS_DIR, VIDEOS_DIR):
+    for directory in (RAW_TRANSCRIPTS_DIR, TRANSCRIPTS_DIR, BLOGS_DIR, VIDEOS_DIR, BLOG_IMAGES_DIR):
         directory.mkdir(parents=True, exist_ok=True)

@@ -26,19 +26,22 @@ take-a-hike-podcast/
 │   ├── raw/                # Raw Whisper output (step 1)
 │   └── *.txt               # Cleaned transcripts after fixes (step 2)
 ├── blogs/                  # Ghost-compatible blog posts (.md)
+├── images/                 # Episode-specific 1200x630 sharing images (Nano Banana)
 ├── videos/                 # Generated portrait videos (.mp4)
 ├── lib/                    # Shared config, state, Gemini, blog, YouTube, Spotify helpers
 ├── podcasts_data.json      # Processing metadata only (paths and flags)
 ├── transcribe.py
 ├── clean_transcripts.py
 ├── generate_blog.py
+├── generate_blog_image.py
 ├── upload_spotify.py
 ├── create_videos.py
 ├── upload_youtube.py
 ├── migrate_podcasts_data.py
 ├── requirements.txt
 ├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
-└── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
+├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
+└── TAH_APP_SHARING_1200x630.jpg  # Social sharing template for generate_blog_image.py
 ```
 
 ## Installation & Setup
@@ -107,6 +110,7 @@ Run the scripts in this order:
 python transcribe.py
 python clean_transcripts.py
 python generate_blog.py
+python generate_blog_image.py   # optional: episode-specific 1200x630 sharing images
 python upload_spotify.py
 python create_videos.py
 python upload_youtube.py
@@ -152,6 +156,20 @@ Blog body in Markdown...
 ```
 
 Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). After upload, `upload_spotify.py` and `upload_youtube.py` replace the placeholder URLs with real links.
+
+### Sharing Images
+
+`generate_blog_image.py` sends `TAH_APP_SHARING_1200x630.jpg` to Gemini and uses **Nano Banana** to edit the template with subtle episode-specific elements (wildlife, waterfalls, gorge country, etc.) while keeping the LiSTNR logo and "TAKE A HIKE" branding.
+
+Output is saved to `images/{slug}-sharing.jpg` and tracked in `podcasts_data.json` as `sharing_image_file`.
+
+```bash
+python generate_blog_image.py --slug best-waterfalls-and-couples-adventures
+python generate_blog_image.py "Take a Hike - Best Waterfalls and Couples Adventures.mp3"
+python generate_blog_image.py --all
+```
+
+Image generation must be enabled on your Gemini account (same cookies as blog generation).
 
 ### Spotify Descriptions
 

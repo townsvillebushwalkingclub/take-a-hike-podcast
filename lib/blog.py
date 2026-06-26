@@ -81,6 +81,28 @@ def read_blog_frontmatter(path: Path) -> dict[str, Any]:
     return yaml.safe_load(parts[1]) or {}
 
 
+def read_blog_body(path: Path) -> str:
+    """Return the Markdown body from a blog file (everything after frontmatter)."""
+    text = path.read_text(encoding="utf-8")
+    if not text.startswith("---"):
+        return text.strip()
+
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return text.strip()
+
+    return parts[2].strip()
+
+
+def blog_body_preview(path: Path, max_chars: int = 1500) -> str:
+    """Return a truncated blog body for use in prompts."""
+    body = read_blog_body(path)
+    if len(body) <= max_chars:
+        return body
+    trimmed = body[:max_chars].rsplit(" ", 1)[0]
+    return f"{trimmed}..."
+
+
 def _write_frontmatter(path: Path, frontmatter: dict[str, Any]) -> None:
     """Rewrite a blog file with updated frontmatter."""
     text = path.read_text(encoding="utf-8")

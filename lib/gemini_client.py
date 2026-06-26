@@ -3,6 +3,7 @@
 import asyncio
 import os
 import re
+from pathlib import Path
 from typing import TypeVar
 
 from pydantic import BaseModel
@@ -117,6 +118,86 @@ def generate_json_sync(prompt: str, model: type[T], retries: int = 3) -> T:
     async def _run() -> T:
         try:
             return await generate_json(prompt, model, retries=retries)
+        finally:
+            await _close_client()
+
+    return asyncio.run(_run())
+
+
+async def generate_image_edit(
+    prompt: str,
+    *,
+    template_image: Path,
+    output_dir: Path,
+    filename: str,
+    retries: int = 3,
+) -> tuple[str, Path]:
+    """Edit an image with Gemini Nano Banana and return response text plus saved path."""
+    from gemini_webapi import GeneratedImage
+
+    if not template_image.is_file():
+        raise FileNotFoundError(f"Template image not found: {template_image}")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    client = await _get_client()
+    last_error = None
+
+    for attempt in range(retries):
+        try:
+            response = await client.generate_content(
+                prompt,
+                files=[template_image],
+                temporary=True,
+            )
+            generated = [
+                image for image in (response.images or []) if isinstance(image, GeneratedImage)
+            ]
+            if not generated:
+                detail = (response.text or "").strip() or "No generated image in response"
+                raise RuntimeError(
+                    "Gemini did not return a generated image. "
+                    f"Ensure image generation is enabled on your account. Response: {detail[:500]}"
+                )
+
+            image = generated[0]
+            saved_path = Path(
+                await image.save(
+                    path=str(output_dir),
+                    filename=filename,
+                    full_size=True,
+                    verbose=True,
+                )
+            )
+            return response.text or "", saved_path
+        except Exception as exc:
+            last_error = exc
+            if attempt < retries - 1:
+                wait_time = 30 * (attempt + 1)
+                print(f"Gemini image request failed ({exc}). Retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
+
+    raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
+
+
+def generate_image_edit_sync(
+    prompt: str,
+    *,
+    template_image: Path,
+    output_dir: Path,
+    filename: str,
+    retries: int = 3,
+) -> tuple[str, Path]:
+    """Synchronous wrapper for generate_image_edit."""
+
+    async def _run() -> tuple[str, Path]:
+        try:
+            return await generate_image_edit(
+                prompt,
+                template_image=template_image,
+                output_dir=output_dir,
+                filename=filename,
+                retries=retries,
+            )
         finally:
             await _close_client()
 
