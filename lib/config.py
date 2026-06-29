@@ -20,6 +20,7 @@ CLUB_LOGO_FILE = PROJECT_ROOT / "townsville-bushwalking-club-logo.png"
 # Backwards-compatible alias
 SHARING_IMAGE_TEMPLATE = COVER_IMAGE_TEMPLATE
 BLOG_IMAGES_DIR = PROJECT_ROOT / "images"
+BLOG_IMAGES_CLEAN_DIR = PROJECT_ROOT / "images_clean"
 JSON_FILE = PROJECT_ROOT / "podcasts_data.json"
 
 YOUTUBE_SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]

@@ -228,3 +228,5 @@ lib/__pycache__/
 .vscode/settings.json
 .DS_Store
 images/
+images_clean/
+node_modules/
