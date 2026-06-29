@@ -6,14 +6,16 @@ Find the audio files from the podcast: <https://drive.google.com/drive/folders/1
 
 ## Overview
 
-The pipeline is split into six independent scripts:
+The pipeline is split into eight independent scripts:
 
 1. **`transcribe.py`** — Transcribe audio to **raw** plain text using [openai-whisper](https://github.com/openai/whisper) (default: `large-v3`)
 2. **`clean_transcripts.py`** — Apply name and place-name fixes to raw transcripts, writing cleaned copies
 3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 3 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
-4. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
-5. **`create_videos.py`** — Create portrait videos for social media
-6. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
+4. **`generate_blog_image.py`** — Generate episode-specific sharing images via Gemini Nano Banana (optional)
+5. **`remove_gemini_watermarks.py`** — Remove Gemini watermarks from sharing images using [gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) (optional)
+6. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
+7. **`create_videos.py`** — Create portrait videos for social media
+8. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
 
 Each script is resumable via `podcasts_data.json` and skips work that is already done. Transcript text is stored in files only — not duplicated in the JSON file.
 
@@ -27,6 +29,7 @@ take-a-hike-podcast/
 │   └── *.txt               # Cleaned transcripts after fixes (step 2)
 ├── blogs/                  # Ghost-compatible blog posts (.md)
 ├── images/                 # Episode-specific 1200x630 sharing images (Nano Banana)
+├── images_clean/           # Watermark-free copies of sharing images
 ├── videos/                 # Generated portrait videos (.mp4)
 ├── lib/                    # Shared config, state, Gemini, blog, YouTube, Spotify helpers
 ├── vendor/
@@ -36,11 +39,13 @@ take-a-hike-podcast/
 ├── clean_transcripts.py
 ├── generate_blog.py
 ├── generate_blog_image.py
+├── remove_gemini_watermarks.py
 ├── upload_spotify.py
 ├── create_videos.py
 ├── upload_youtube.py
 ├── migrate_podcasts_data.py
 ├── requirements.txt
+├── package.json            # Node deps for remove_gemini_watermarks.py
 ├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
 ├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
 ├── TAH_Podcast_Cover.jpg  # Cover template for generate_blog_image.py
@@ -69,7 +74,10 @@ Then install Python dependencies (includes the submodule as an editable package)
 ```bash
 pip install -r requirements.txt
 playwright install chromium
+npm install
 ```
+
+`npm install` is only required if you use `remove_gemini_watermarks.py` (Gemini watermark removal). It installs `@pilio/gemini-watermark-remover` and `sharp`.
 
 You also need FFmpeg installed:
 
@@ -129,6 +137,7 @@ python transcribe.py
 python clean_transcripts.py
 python generate_blog.py
 python generate_blog_image.py   # optional: episode-specific 1200x630 sharing images
+python remove_gemini_watermarks.py   # optional: strip Gemini watermarks from sharing images
 python upload_spotify.py
 python create_videos.py
 python upload_youtube.py
@@ -188,6 +197,19 @@ python generate_blog_image.py --all
 ```
 
 Image generation must be enabled on your Gemini account (same cookies as blog generation).
+
+### Watermark-free Sharing Images
+
+Gemini-generated images include a visible watermark in the bottom-right corner. `remove_gemini_watermarks.py` uses [@pilio/gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) to produce clean copies in `images_clean/`, keeping the originals in `images/` unchanged.
+
+Requires Node.js and `npm install` (see Installation).
+
+```bash
+python remove_gemini_watermarks.py
+python remove_gemini_watermarks.py --overwrite   # regenerate existing cleaned images
+```
+
+By default, reads from `images/` and writes to `images_clean/`. Use `--input-dir` and `--output-dir` to override.
 
 ### Spotify Descriptions
 
@@ -260,6 +282,7 @@ Blog, Spotify, and YouTube scripts still apply `clean_text()` to AI-generated ti
 - **Spotify upload fails / times out** → Re-export cookies; try `python upload_spotify.py --no-headless`
 - **"YouTube credentials not found"** → Download OAuth credentials and save as `client_secret.json`
 - **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
+- **"gemini-watermark-remover is not installed"** → Run `npm install` in the project root (requires Node.js)
 - **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
 - **Whisper MemoryError on large-v3** → Close other apps, ensure ~8GB+ free RAM, or use `WHISPER_MODEL=medium`
 
