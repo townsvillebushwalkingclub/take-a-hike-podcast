@@ -1,17 +1,17 @@
 ---
-slug: perfect-group-hike-size-brock-hook
-title: Perfect Group Hike Size & Racing with Brock Hook
+slug: perfect-group-hike-size-brock-hawke
+title: Perfect Group Hike Size & Racing with Brock Hawke
 excerpt: Wondering what is the perfect number of people out on a group hike? We discuss
-  ideal group sizes for safety and bonding, plus chat with Brock Hook about extreme
+  ideal group sizes for safety and bonding, plus chat with Brock Hawke about extreme
   adventure racing from Charters Towers to New Zealand's Godzone.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
 spotify_url: PLACEHOLDER_SPOTIFY_URL
 episode_file: Take a Hike - What is the perfect number of people out on a group hike_
   Brock Ha.mp3
-blog_url: https://townsvillebushwalkingclub.com/perfect-group-hike-size-brock-hook/
+blog_url: https://townsvillebushwalkingclub.com/perfect-group-hike-size-brock-hawke/
 ---
 
-Welcome to another episode of Take a Hike! This week, hosts Blair Woodcock, Luen Warneke, and Cherry Judge tackle a highly debated topic on the trails: what is the perfect number of people out on a group hike? We also welcome back local legend Brock Hook to talk about the intense, sleep-deprived world of adventure racing.
+Welcome to another episode of Take a Hike! This week, hosts Blair Woodcock, Luen Warneke, and Cherry Judge tackle a highly debated topic on the trails: what is the perfect number of people out on a group hike? We also welcome back local legend Brock Hawke to talk about the intense, sleep-deprived world of adventure racing.
 
 ## Finding the Perfect Hiking Group Size
 
@@ -28,9 +28,9 @@ If you are planning a bigger excursion, keep these local regulations in mind:
 
 As the hosts noted, when groups get larger than six or eight, you start to lose that personal bonding experience. Smaller groups allow you to share the hardships of the trail and have in-depth, meaningful conversations around the camp.
 
-## Enter the World of Adventure Racing with Brock Hook
+## Enter the World of Adventure Racing with Brock Hawke
 
-After tackling the Herbert River in our previous episode, Brock Hook is back to discuss his transition into the grueling sport of adventure racing. Inspired by the Bear Grylls documentary 'Eco Challenge', Brock and his dad decided to test their limits.
+After tackling the Herbert River in our previous episode, Brock Hawke is back to discuss his transition into the grueling sport of adventure racing. Inspired by the Bear Grylls documentary 'Eco Challenge', Brock and his dad decided to test their limits.
 
 ### Pushing Boundaries at Godzone
 
