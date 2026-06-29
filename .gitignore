@@ -227,3 +227,4 @@ temp_portrait.jpg
 lib/__pycache__/
 .vscode/settings.json
 .DS_Store
+images/

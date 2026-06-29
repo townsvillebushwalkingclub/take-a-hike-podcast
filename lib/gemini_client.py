@@ -176,7 +176,7 @@ def _build_single_shot_prompt(
         "Use the image generation tool to GENERATE one new podcast cover image.",
         "",
         "Attached reference images:",
-        f"- {template_image.name}: Take A Hike / LiSTNR podcast cover template (brand reference)",
+        f"- {template_image.name}: Take A Hike podcast cover template (brand reference)",
     ]
     for ref in extra_images:
         lines.append(
@@ -188,41 +188,133 @@ def _build_single_shot_prompt(
 
 def _build_chat_setup_message(template_image: Path, extra_images: list[Path]) -> str:
     lines = [
-        "Reference images for a Take A Hike podcast episode cover:",
-        f"1. Podcast cover template ({template_image.name})",
+        "We are generating a series of Take A Hike podcast episode covers for the Townsville Bushwalking Club website.",
+        "Reference images:",
+        f"1. Podcast cover template ({template_image.name}) — brand and title treatment",
     ]
     for index, ref in enumerate(extra_images, start=2):
         lines.append(f"{index}. Townsville Bushwalking Club logo ({ref.name})")
-    lines.append("I will ask you to GENERATE a new cover in the next message.")
+    lines.append(
+        "I will ask you to GENERATE a new cover for each episode in this same conversation. "
+        "Keep style, branding, and quality consistent across the series while making each episode visually distinct."
+    )
     return "\n".join(lines)
 
 
-async def generate_image_edit(
+def _build_existing_covers_message(count: int) -> str:
+    return (
+        f"These {count} podcast covers are already approved for this series. "
+        "Match their visual style, branding, title treatment, and overall quality "
+        "for every new cover you generate in this conversation."
+    )
+
+
+class CoverImageSession:
+    """Persistent Gemini chat for generating a consistent cover image series."""
+
+    def __init__(self) -> None:
+        self.client = None
+        self.chat = None
+        self.image_model = None
+
+    async def start(
+        self,
+        *,
+        template_image: Path,
+        reference_images: list[Path],
+        existing_covers: list[Path] | None = None,
+    ) -> None:
+        self.client = await _get_client()
+        self.image_model = resolve_gemini_model(GEMINI_IMAGE_MODEL)
+        self.chat = self.client.start_chat(model=self.image_model)
+
+        upload_files = [template_image, *reference_images]
+        await self.chat.send_message(
+            _build_chat_setup_message(template_image, reference_images),
+            files=upload_files,
+            temporary=False,
+        )
+
+        if existing_covers:
+            await self.chat.send_message(
+                _build_existing_covers_message(len(existing_covers)),
+                files=existing_covers,
+                temporary=False,
+            )
+
+    async def generate(
+        self,
+        prompt: str,
+        *,
+        output_dir: Path,
+        filename: str,
+        retries: int = 3,
+    ) -> tuple[str, Path]:
+        if self.chat is None:
+            raise RuntimeError("CoverImageSession.start() must be called before generate()")
+
+        chat_prompt = (
+            "Use the image generation tool to GENERATE the next podcast cover image in this series. "
+            "Match the style of previous covers in this conversation. "
+            f"{prompt}"
+        )
+        last_error = None
+        saw_limit = False
+
+        for attempt in range(retries):
+            try:
+                response = await self.chat.send_message(chat_prompt, temporary=False)
+                return await _save_first_generated_image(
+                    self.client, response, output_dir, filename
+                )
+            except RuntimeError as exc:
+                message = str(exc)
+                if message.startswith("IMAGE_LIMIT:"):
+                    saw_limit = True
+                    last_error = RuntimeError(message.removeprefix("IMAGE_LIMIT:"))
+                    break
+                if message.startswith("NO_IMAGE:"):
+                    last_error = RuntimeError(message.removeprefix("NO_IMAGE:"))
+                else:
+                    last_error = exc
+            except Exception as exc:
+                last_error = exc
+
+            if attempt < retries - 1:
+                wait_time = 30 * (attempt + 1)
+                print(f"Gemini image request failed ({last_error}). Retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
+
+        if saw_limit:
+            raise RuntimeError(
+                "Gemini refused image generation (reported a limit). "
+                "Image generation has its own quota separate from chat. "
+                "Try generating a test image at gemini.google.com, wait for the limit to reset, "
+                f"then retry. Last response: {last_error}"
+            )
+        raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
+
+
+async def _generate_image_edit_standalone(
     prompt: str,
     *,
     template_image: Path,
-    reference_images: list[Path] | None = None,
+    reference_images: list[Path] | None,
     output_dir: Path,
     filename: str,
     retries: int = 3,
 ) -> tuple[str, Path]:
-    """Edit an image with Gemini Nano Banana and return response text plus saved path."""
-    if not template_image.is_file():
-        raise FileNotFoundError(f"Template image not found: {template_image}")
-
-    extra_images = [path for path in (reference_images or []) if path.is_file()]
-    missing_refs = [path for path in (reference_images or []) if not path.is_file()]
-    if missing_refs:
-        missing = ", ".join(str(path) for path in missing_refs)
-        raise FileNotFoundError(f"Reference image(s) not found: {missing}")
-
-    output_dir.mkdir(parents=True, exist_ok=True)
+    """Generate one cover in a fresh chat (single episode mode)."""
+    extra_images = list(reference_images or [])
     client = await _get_client()
     image_model = resolve_gemini_model(GEMINI_IMAGE_MODEL)
     upload_files = [template_image, *extra_images]
     single_shot_prompt = _build_single_shot_prompt(template_image, extra_images, prompt)
     chat_setup = _build_chat_setup_message(template_image, extra_images)
-    chat_prompt = f"Use the image generation tool to GENERATE a new podcast cover image. {prompt}"
+    chat_prompt = (
+        "Use the image generation tool to GENERATE a new podcast cover image. "
+        f"{prompt}"
+    )
 
     last_error = None
     saw_limit = False
@@ -283,6 +375,93 @@ async def generate_image_edit(
             f"then retry. Last response: {last_error}"
         )
     raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
+
+
+async def generate_image_edit(
+    prompt: str,
+    *,
+    template_image: Path,
+    reference_images: list[Path] | None = None,
+    output_dir: Path,
+    filename: str,
+    retries: int = 3,
+) -> tuple[str, Path]:
+    """Edit an image with Gemini Nano Banana and return response text plus saved path."""
+    if not template_image.is_file():
+        raise FileNotFoundError(f"Template image not found: {template_image}")
+
+    extra_images = [path for path in (reference_images or []) if path.is_file()]
+    missing_refs = [path for path in (reference_images or []) if not path.is_file()]
+    if missing_refs:
+        missing = ", ".join(str(path) for path in missing_refs)
+        raise FileNotFoundError(f"Reference image(s) not found: {missing}")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return await _generate_image_edit_standalone(
+        prompt,
+        template_image=template_image,
+        reference_images=extra_images,
+        output_dir=output_dir,
+        filename=filename,
+        retries=retries,
+    )
+
+
+async def run_cover_image_batch(
+    jobs: list[tuple[str, str]],
+    *,
+    template_image: Path,
+    reference_images: list[Path],
+    output_dir: Path,
+    existing_covers: list[Path] | None = None,
+) -> list[tuple[str, str | None, Path | None, str | None]]:
+    """Generate covers in one chat session. Each job is (slug, prompt)."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    results: list[tuple[str, str | None, Path | None, str | None]] = []
+
+    session = CoverImageSession()
+    try:
+        await session.start(
+            template_image=template_image,
+            reference_images=reference_images,
+            existing_covers=existing_covers,
+        )
+        for slug, prompt in jobs:
+            try:
+                _, saved_path = await session.generate(
+                    prompt,
+                    output_dir=output_dir,
+                    filename=f"{slug}-sharing.jpg",
+                )
+                results.append((slug, f"images/{saved_path.name}", saved_path, None))
+            except Exception as exc:
+                results.append((slug, None, None, str(exc)))
+    finally:
+        await _close_client()
+
+    return results
+
+
+def run_cover_image_batch_sync(
+    jobs: list[tuple[str, str]],
+    *,
+    template_image: Path,
+    reference_images: list[Path],
+    output_dir: Path,
+    existing_covers: list[Path] | None = None,
+) -> list[tuple[str, str | None, Path | None, str | None]]:
+    """Synchronous wrapper for run_cover_image_batch."""
+
+    async def _run() -> list[tuple[str, str | None, Path | None, str | None]]:
+        return await run_cover_image_batch(
+            jobs,
+            template_image=template_image,
+            reference_images=reference_images,
+            output_dir=output_dir,
+            existing_covers=existing_covers,
+        )
+
+    return asyncio.run(_run())
 
 
 def generate_image_edit_sync(

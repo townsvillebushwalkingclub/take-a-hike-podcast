@@ -18,23 +18,28 @@ from lib.config import (
     GEMINI_IMAGE_MODEL,
     ensure_directories,
 )
-from lib.gemini_client import generate_image_edit_sync
+from lib.gemini_client import generate_image_edit_sync, run_cover_image_batch_sync
 from lib.state import get_episode, load_state, save_state
 
-IMAGE_PROMPT = """Design a striking podcast cover / social sharing image for this episode of "Take A Hike" (LiSTNR), published on the Townsville Bushwalking Club blog.
+import re
+
+def remove_listnr(text: str) -> str:
+    """Remove the word 'LiSTNR' (case-insensitive) from the input text."""
+    return re.sub(r"\bLiSTNR\b", "", text, flags=re.IGNORECASE)
+
+IMAGE_PROMPT = """Design a striking podcast cover / social sharing image for this episode of "Take A Hike", published on the Townsville Bushwalking Club website.
 
 You have strong creative freedom. Use the attached podcast cover template as inspiration—not a rigid frame. Feel free to reinterpret the scene, composition, colour palette, lighting, and mood. Make each episode feel distinct and evocative while still recognisable as the same show.
 
-Brand anchors (keep these, but you may stylise them):
-- LiSTNR branding should remain visible
-- "Take A Hike" show identity — title treatment can evolve but must stay readable
-- Incorporate the Townsville Bushwalking Club logo from the reference images (badge, corner mark, footer strip, or woven into the landscape — your creative choice)
+Brand anchors:
+- "Take A Hike" text is our identity — this must stay the same as the reference image
+- Incorporate the Townsville Bushwalking Club logo from the reference images
 
 Creative direction:
-- Let the episode topics below drive atmosphere: wildlife, waterfalls, rainforest, gorge country, islands, peaks, camping, gear, seasons, or local Townsville/Paluma adventures
+- Let the episode topics below drive atmosphere: wildlife, waterfalls, rainforest, gorge country, islands, peaks, camping, gear, seasons, or local Townsville/Paluma adventures (North Queensland Wet Tropics Rainforest or outback bushland)
 - North Queensland hiking aesthetic: tropical light, escarpments, reef-and-rainforest energy, adventure and warmth
 - Bold visual storytelling is welcome — dramatic skies, depth, texture, and a cover someone would want to click
-- Landscape orientation suitable for link previews (around 1200x630)
+- Landscape orientation suitable for link previews
 
 Episode context:
 Title: {title}
@@ -43,7 +48,6 @@ Excerpt: {excerpt}
 
 Key topics from the blog:
 {body_preview}"""
-
 
 def resolve_blog_path(
     *,
@@ -92,10 +96,10 @@ def build_prompt(blog_path: Path, episode_filename: str) -> str:
     body_preview = blog_body_preview(blog_path)
 
     return IMAGE_PROMPT.format(
-        title=title,
-        episode_title=episode_title,
-        excerpt=excerpt,
-        body_preview=body_preview,
+        title=remove_listnr(title),
+        episode_title=remove_listnr(episode_title),
+        excerpt=remove_listnr(excerpt),
+        body_preview=remove_listnr(body_preview),
     )
 
 
@@ -219,23 +223,59 @@ def main() -> int:
             print("No blog posts found in podcasts_data.json")
             return 0
 
-        print(f"Found {len(items)} blog posts\n")
+        print(f"Found {len(items)} blog posts")
+        print("Using one shared Gemini chat for consistent cover styling\n")
+
+        pending_jobs: list[tuple[str, str, str]] = []
+        existing_covers: list[Path] = []
+
         for index, (blog_path, episode_filename) in enumerate(items, start=1):
-            print(f"{index}/{len(items)} {blog_path.name}")
-            try:
-                process_blog(
-                    blog_path,
-                    episode_filename,
-                    state,
-                    template=args.template,
-                    club_logo=args.club_logo,
-                    output_dir=args.output_dir,
-                    force=args.force,
-                )
-                save_state(state)
-            except Exception as exc:
-                print(f"Error generating image for {blog_path.name}: {exc}")
-            print()
+            frontmatter = read_blog_frontmatter(blog_path)
+            slug = frontmatter.get("slug") or blog_path.stem
+            output_path = args.output_dir / f"{slug}-sharing.jpg"
+            episode = get_episode(state, episode_filename)
+
+            if episode.get("sharing_image_file") and output_path.exists() and not args.force:
+                print(f"{index}/{len(items)} {blog_path.name}")
+                print(f"Skipping {slug} - sharing image already exists")
+                existing_covers.append(output_path)
+                print()
+                continue
+
+            prompt = build_prompt(blog_path, episode_filename)
+            pending_jobs.append((slug, prompt, episode_filename))
+            print(f"{index}/{len(items)} {blog_path.name} (queued)")
+
+        if not pending_jobs:
+            print("\nNo cover images to generate.")
+            return 0
+
+        print(f"\nGenerating {len(pending_jobs)} cover(s) in one conversation...")
+        if existing_covers:
+            print(f"  Seeding chat with {len(existing_covers)} existing cover(s) for style reference")
+        print(f"  Model: {GEMINI_IMAGE_MODEL}")
+        print(f"  Template: {args.template.name}")
+        print(f"  Club logo: {args.club_logo.name}\n")
+
+        results = run_cover_image_batch_sync(
+            [(slug, prompt) for slug, prompt, _ in pending_jobs],
+            template_image=args.template,
+            reference_images=[args.club_logo],
+            output_dir=args.output_dir,
+            existing_covers=existing_covers or None,
+        )
+
+        results_by_slug = {slug: (rel_path, saved_path, error) for slug, rel_path, saved_path, error in results}
+        for slug, _prompt, episode_filename in pending_jobs:
+            rel_path, saved_path, error = results_by_slug[slug]
+            if error:
+                print(f"Error generating image for {slug}: {error}")
+                continue
+            episode = get_episode(state, episode_filename)
+            episode["sharing_image_file"] = rel_path
+            print(f"Saved cover image: {saved_path}")
+
+        save_state(state)
     else:
         blog_path, episode_filename = resolve_blog_path(
             slug=args.slug,
