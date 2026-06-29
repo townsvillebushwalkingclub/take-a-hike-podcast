@@ -28,6 +28,19 @@ def _is_image_limit_response(text: str) -> bool:
     return any(phrase in lowered for phrase in _IMAGE_LIMIT_PHRASES)
 
 
+class ImageGenerationLimitError(RuntimeError):
+    """Gemini image generation quota exhausted — do not retry remaining jobs."""
+
+
+def _raise_if_image_limit(detail: str) -> None:
+    if _is_image_limit_response(detail):
+        raise ImageGenerationLimitError(
+            "Gemini image generation limit reached. "
+            "Stop and retry later when your quota resets (check Settings at gemini.google.com). "
+            f"Response: {detail[:500]}"
+        )
+
+
 async def _close_client() -> None:
     """Close the shared client and allow a fresh one on the next event loop."""
     global _client, _client_loop
@@ -150,8 +163,7 @@ async def _save_first_generated_image(
     ]
     if not generated:
         detail = (response.text or "").strip() or "No generated image in response"
-        if _is_image_limit_response(detail):
-            raise RuntimeError(f"IMAGE_LIMIT:{detail[:500]}")
+        _raise_if_image_limit(detail)
         raise RuntimeError(f"NO_IMAGE:{detail[:500]}")
 
     image = generated[0]
@@ -258,41 +270,18 @@ class CoverImageSession:
             "Match the style of previous covers in this conversation. "
             f"{prompt}"
         )
-        last_error = None
-        saw_limit = False
 
-        for attempt in range(retries):
-            try:
-                response = await self.chat.send_message(chat_prompt, temporary=False)
-                return await _save_first_generated_image(
-                    self.client, response, output_dir, filename
-                )
-            except RuntimeError as exc:
-                message = str(exc)
-                if message.startswith("IMAGE_LIMIT:"):
-                    saw_limit = True
-                    last_error = RuntimeError(message.removeprefix("IMAGE_LIMIT:"))
-                    break
-                if message.startswith("NO_IMAGE:"):
-                    last_error = RuntimeError(message.removeprefix("NO_IMAGE:"))
-                else:
-                    last_error = exc
-            except Exception as exc:
-                last_error = exc
-
-            if attempt < retries - 1:
-                wait_time = 30 * (attempt + 1)
-                print(f"Gemini image request failed ({last_error}). Retrying in {wait_time}s...")
-                await asyncio.sleep(wait_time)
-
-        if saw_limit:
-            raise RuntimeError(
-                "Gemini refused image generation (reported a limit). "
-                "Image generation has its own quota separate from chat. "
-                "Try generating a test image at gemini.google.com, wait for the limit to reset, "
-                f"then retry. Last response: {last_error}"
+        try:
+            response = await self.chat.send_message(chat_prompt, temporary=False)
+            return await _save_first_generated_image(
+                self.client, response, output_dir, filename
             )
-        raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
+        except ImageGenerationLimitError:
+            raise
+        except RuntimeError as exc:
+            if str(exc).startswith("NO_IMAGE:"):
+                raise RuntimeError(str(exc).removeprefix("NO_IMAGE:")) from exc
+            raise
 
 
 async def _generate_image_edit_standalone(
@@ -317,7 +306,6 @@ async def _generate_image_edit_standalone(
     )
 
     last_error = None
-    saw_limit = False
 
     for attempt in range(retries):
         strategies = (
@@ -347,33 +335,21 @@ async def _generate_image_edit_standalone(
                 )
             except RuntimeError as exc:
                 message = str(exc)
-                if message.startswith("IMAGE_LIMIT:"):
-                    saw_limit = True
-                    last_error = RuntimeError(message.removeprefix("IMAGE_LIMIT:"))
-                    print(f"  {strategy_name}: image limit response, trying next approach...")
-                    continue
                 if message.startswith("NO_IMAGE:"):
                     last_error = RuntimeError(message.removeprefix("NO_IMAGE:"))
                     print(f"  {strategy_name}: no generated image, trying next approach...")
                     continue
                 last_error = exc
+            except ImageGenerationLimitError:
+                raise
             except Exception as exc:
                 last_error = exc
 
-        if saw_limit and attempt == retries - 1:
-            break
         if attempt < retries - 1:
             wait_time = 30 * (attempt + 1)
             print(f"Gemini image request failed ({last_error}). Retrying in {wait_time}s...")
             await asyncio.sleep(wait_time)
 
-    if saw_limit:
-        raise RuntimeError(
-            "Gemini refused image generation (reported a limit). "
-            "Image generation has its own quota separate from chat. "
-            "Try generating a test image at gemini.google.com, wait for the limit to reset, "
-            f"then retry. Last response: {last_error}"
-        )
     raise RuntimeError(f"Gemini image request failed after {retries} attempts: {last_error}")
 
 
@@ -434,6 +410,10 @@ async def run_cover_image_batch(
                     filename=f"{slug}-sharing.jpg",
                 )
                 results.append((slug, f"images/{saved_path.name}", saved_path, None))
+            except ImageGenerationLimitError as exc:
+                results.append((slug, None, None, str(exc)))
+                print(f"\nImage generation limit reached at {slug}. Stopping batch.")
+                break
             except Exception as exc:
                 results.append((slug, None, None, str(exc)))
     finally:

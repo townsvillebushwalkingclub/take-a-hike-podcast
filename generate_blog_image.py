@@ -6,11 +6,12 @@ import sys
 from pathlib import Path
 
 from lib.blog import (
-    blog_body_preview,
     format_episode_title,
+    read_blog_body,
     read_blog_frontmatter,
 )
 from lib.config import (
+    BLOG_BASE_URL,
     BLOG_IMAGES_DIR,
     BLOGS_DIR,
     CLUB_LOGO_FILE,
@@ -27,13 +28,20 @@ def remove_listnr(text: str) -> str:
     """Remove the word 'LiSTNR' (case-insensitive) from the input text."""
     return re.sub(r"\bLiSTNR\b", "", text, flags=re.IGNORECASE)
 
-IMAGE_PROMPT = """Design a striking podcast cover / social sharing image for this episode of "Take A Hike", published on the Townsville Bushwalking Club website.
+
+def club_website_display() -> str:
+    """Return the club website hostname for display in image prompts."""
+    return BLOG_BASE_URL.removeprefix("https://").removeprefix("http://").rstrip("/")
+
+
+IMAGE_PROMPT = """Design a striking podcast cover / social sharing image for this episode of "Take A Hike", published on the Townsville Bushwalking Club website ({club_website}).
 
 You have strong creative freedom. Use the attached podcast cover template as inspiration—not a rigid frame. Feel free to reinterpret the scene, composition, colour palette, lighting, and mood. Make each episode feel distinct and evocative while still recognisable as the same show.
 
 Brand anchors:
 - "Take A Hike" text is our identity — this must stay the same as the reference image
 - Incorporate the Townsville Bushwalking Club logo from the reference images
+- Include the website URL "{club_website}" subtly in the design (e.g. footer strip, corner badge, or near the club logo)
 
 Creative direction:
 - Let the episode topics below drive atmosphere: wildlife, waterfalls, rainforest, gorge country, islands, peaks, camping, gear, seasons, or local Townsville/Paluma adventures (North Queensland Wet Tropics Rainforest or outback bushland)
@@ -46,8 +54,8 @@ Title: {title}
 Episode: {episode_title}
 Excerpt: {excerpt}
 
-Key topics from the blog:
-{body_preview}"""
+Full blog post:
+{blog_body}"""
 
 def resolve_blog_path(
     *,
@@ -93,13 +101,14 @@ def build_prompt(blog_path: Path, episode_filename: str) -> str:
     title = frontmatter.get("title", "").strip()
     excerpt = frontmatter.get("excerpt", "").strip()
     episode_title = format_episode_title(episode_filename)
-    body_preview = blog_body_preview(blog_path)
+    blog_body = read_blog_body(blog_path)
 
     return IMAGE_PROMPT.format(
+        club_website=club_website_display(),
         title=remove_listnr(title),
         episode_title=remove_listnr(episode_title),
         excerpt=remove_listnr(excerpt),
-        body_preview=remove_listnr(body_preview),
+        blog_body=remove_listnr(blog_body),
     )
 
 
@@ -266,14 +275,29 @@ def main() -> int:
         )
 
         results_by_slug = {slug: (rel_path, saved_path, error) for slug, rel_path, saved_path, error in results}
+        hit_limit = False
         for slug, _prompt, episode_filename in pending_jobs:
+            if slug not in results_by_slug:
+                if hit_limit:
+                    print(f"Skipped {slug} - image generation limit reached")
+                continue
             rel_path, saved_path, error = results_by_slug[slug]
             if error:
                 print(f"Error generating image for {slug}: {error}")
+                if "image generation limit reached" in error.lower():
+                    hit_limit = True
                 continue
             episode = get_episode(state, episode_filename)
             episode["sharing_image_file"] = rel_path
             print(f"Saved cover image: {saved_path}")
+
+        if hit_limit:
+            remaining = sum(1 for slug, _, _ in pending_jobs if slug not in results_by_slug)
+            if remaining:
+                print(f"\nStopped early: {remaining} cover(s) not attempted due to image generation limit.")
+            save_state(state)
+            print("Cover image generation stopped (quota limit).")
+            return 1
 
         save_state(state)
     else:
