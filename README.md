@@ -136,7 +136,7 @@ Run the scripts in this order:
 python transcribe.py
 python clean_transcripts.py
 python generate_blog.py
-python generate_blog_image.py   # optional: episode-specific 1200x630 sharing images
+python generate_blog_image.py   # optional: generate all missing 1200x630 sharing images
 python remove_gemini_watermarks.py   # optional: strip Gemini watermarks from sharing images
 python upload_spotify.py
 python create_videos.py
@@ -191,9 +191,10 @@ Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). Afte
 Output is saved to `images/{slug}-sharing.jpg` and tracked in `podcasts_data.json` as `sharing_image_file`.
 
 ```bash
+python generate_blog_image.py
 python generate_blog_image.py --slug best-waterfalls-and-couples-adventures
 python generate_blog_image.py "Take a Hike - Best Waterfalls and Couples Adventures.mp3"
-python generate_blog_image.py --all
+python generate_blog_image.py --all   # same as running with no arguments
 ```
 
 Image generation must be enabled on your Gemini account (same cookies as blog generation).

@@ -251,7 +251,8 @@
     "blog_url": "https://townsvillebushwalkingclub.com/townsville-wet-season-hikes-waterproofing-gear/",
     "youtube_url": "",
     "spotify_url": "",
-    "spotify_title": ""
+    "spotify_title": "",
+    "sharing_image_file": "images/townsville-wet-season-hikes-waterproofing-gear-sharing.jpg"
   },
   "Take a Hike - Map Vs GPS & Take a hike to Mt Flagstone.mp3": {
     "episode_file": "Take a Hike - Map Vs GPS & Take a hike to Mt Flagstone.mp3",
@@ -270,13 +271,13 @@
     "spotify_title": "",
     "sharing_image_file": "images/map-vs-gps-mt-flagstone-sharing.jpg"
   },
-  "Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap.mp3": {
-    "episode_file": "Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap.mp3",
+  "Take a Hike - Snake 101 & The Dalrymple Gap.mp3": {
+    "episode_file": "Take a Hike - Snake 101 & The Dalrymple Gap.mp3",
     "youtube_title": "Python ATTACKS Hiker! | Snake Safety & Dalrymple Gap Track Guide | Townsville Hiking",
     "youtube_id": "",
-    "transcript_file": "transcripts/Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap.txt",
+    "transcript_file": "transcripts/Take a Hike - Snake 101 & The Dalrymple Gap.txt",
     "transcript_done": true,
-    "raw_transcript_file": "transcripts/raw/Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap.txt",
+    "raw_transcript_file": "transcripts/raw/Take a Hike - Snake 101 & The Dalrymple Gap.txt",
     "transcript_raw_done": true,
     "whisper_model": "large-v3",
     "blog_slug": "snake-101-dalrymple-gap",
@@ -539,7 +540,8 @@
     "blog_url": "https://townsvillebushwalkingclub.com/take-a-hike-mt-halifax/",
     "youtube_url": "",
     "spotify_url": "",
-    "spotify_title": ""
+    "spotify_title": "",
+    "sharing_image_file": "images/take-a-hike-mt-halifax-sharing.jpg"
   },
   "Take a Hike to the highest mountain in Queensland, Mt Bartle Frere.mp3": {
     "episode_file": "Take a Hike to the highest mountain in Queensland, Mt Bartle Frere.mp3",
@@ -623,18 +625,19 @@
     "blog_url": "https://townsvillebushwalkingclub.com/take-a-hike-bambaroo-track/",
     "youtube_url": "",
     "spotify_url": "",
-    "spotify_title": ""
+    "spotify_title": "",
+    "sharing_image_file": "images/take-a-hike-bambaroo-track-sharing.jpg"
   },
   "LISTNR - TAKE A HIKE EP 1.mp3": {
     "episode_file": "LISTNR - TAKE A HIKE EP 1.mp3",
     "raw_transcript_file": "transcripts/raw/LISTNR - TAKE A HIKE EP 1.txt",
     "transcript_raw_done": true,
     "whisper_model": "large-v3",
-    "transcript_file": "",
-    "transcript_done": false,
-    "blog_slug": "",
-    "blog_file": "",
-    "blog_url": "",
+    "transcript_file": "transcripts/LISTNR - TAKE A HIKE EP 1.txt",
+    "transcript_done": true,
+    "blog_slug": "crystal-falls-paluma-hiking-guide",
+    "blog_file": "blogs/crystal-falls-paluma-hiking-guide.md",
+    "blog_url": "https://townsvillebushwalkingclub.com/crystal-falls-paluma-hiking-guide/",
     "youtube_id": "",
     "youtube_url": "",
     "youtube_title": "",
@@ -812,9 +815,9 @@
     "spotify_title": "",
     "sharing_image_file": ""
   },
-  "Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap (1).mp3": {
-    "episode_file": "Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap (1).mp3",
-    "raw_transcript_file": "transcripts/raw/Take a Hike - Snake 101 & The\u00a0Dalrymple\u00a0Gap (1).txt",
+  "Take a Hike - Snake 101 & The Dalrymple Gap (1).mp3": {
+    "episode_file": "Take a Hike - Snake 101 & The Dalrymple Gap (1).mp3",
+    "raw_transcript_file": "transcripts/raw/Take a Hike - Snake 101 & The Dalrymple Gap (1).txt",
     "transcript_raw_done": true,
     "whisper_model": "large-v3",
     "transcript_file": "",

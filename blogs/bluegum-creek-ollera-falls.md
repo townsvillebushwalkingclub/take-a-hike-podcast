@@ -2,7 +2,7 @@
 slug: bluegum-creek-ollera-falls
 title: 'Easy & Hard Hikes: Bluegum Creek to Ollera Falls'
 excerpt: Join the Take a Hike podcast to explore weekend options with an easy hike
-  to Bluegum Creek or a hard hike to Ollera falls. Blair, Luen Warneke and Cherry
+  to Bluegum Creek or a hard hike to Ollera Falls. Blair, Luen Warneke and Cherry
   Judge share tips for Triple Falls, Lizard Gorge, and extreme Paluma adventures.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
 spotify_url: PLACEHOLDER_SPOTIFY_URL

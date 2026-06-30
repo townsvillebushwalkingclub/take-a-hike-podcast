@@ -187,13 +187,13 @@ def main() -> int:
     parser.add_argument(
         "episode",
         nargs="?",
-        help="Episode MP3 filename (optional if --slug or --all is used)",
+        help="Episode MP3 filename for a single cover (default: process all blogs)",
     )
-    parser.add_argument("--slug", help="Blog slug instead of episode filename")
+    parser.add_argument("--slug", help="Blog slug for a single cover instead of episode filename")
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Generate cover images for every episode that has a blog",
+        help="Generate cover images for every episode that has a blog (default when no episode or slug is given)",
     )
     parser.add_argument(
         "--force",
@@ -220,8 +220,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if not args.all and not args.slug and not args.episode:
-        parser.error("Provide an episode filename, --slug, or --all")
+    if not args.slug and not args.episode:
+        args.all = True
 
     ensure_directories()
     state = load_state()
