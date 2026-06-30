@@ -11,7 +11,6 @@ LEGACY_FIELDS = (
     "blog_title",
     "blog_excerpt",
     "blog_content",
-    "youtube_description",
 )
 
 CANONICAL_FIELDS = (
@@ -27,8 +26,11 @@ CANONICAL_FIELDS = (
     "youtube_id",
     "youtube_url",
     "youtube_title",
+    "youtube_description",
     "spotify_url",
     "spotify_title",
+    "spotify_description",
+    "sharing_image_file",
 )
 
 
@@ -46,8 +48,11 @@ def default_episode(episode_filename: str) -> dict:
         "youtube_id": "",
         "youtube_url": "",
         "youtube_title": "",
+        "youtube_description": "",
         "spotify_url": "",
         "spotify_title": "",
+        "spotify_description": "",
+        "sharing_image_file": "",
     }
 
 

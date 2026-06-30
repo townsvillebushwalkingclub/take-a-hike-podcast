@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from lib.blog import read_blog_frontmatter, update_blog_spotify_url
-from lib.config import AUDIO_DIR, GRAPHIC_FILE, ensure_directories
+from lib.config import AUDIO_DIR, BLOG_IMAGES_CLEAN_DIR, PROJECT_ROOT, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
 from lib.spotify import publish_episode_to_spotify
@@ -38,6 +38,7 @@ Transcript:
 Requirements:
 - title: engaging episode title under 120 characters with hiking/bushwalking/Townsville keywords
 - summary: 2-3 paragraph intro that hooks listeners and covers key topics (under 3500 characters)
+- Do not include episode numbers in the title (no "Episode 5", "Ep. 12", etc.)
 - Do not include the full transcript in the summary
 - {name_note}
 - {text_note}
@@ -50,6 +51,31 @@ Respond with JSON only in this exact shape:
 def build_description(summary: str, blog_url: str) -> str:
     """Assemble the Spotify episode description."""
     return f"{summary.strip()}\n\nRead the full blog post: {blog_url}"
+
+
+def resolve_spotify_episode_art(episode: dict) -> Path:
+    """Return watermark-free episode art from images_clean, or the original sharing image."""
+    sharing = episode.get("sharing_image_file", "").strip()
+    if not sharing:
+        raise FileNotFoundError(
+            "No sharing_image_file in state. Run generate_blog_image.py first."
+        )
+
+    clean_path = BLOG_IMAGES_CLEAN_DIR / Path(sharing).name
+    if clean_path.is_file():
+        return clean_path
+
+    original_path = PROJECT_ROOT / sharing
+    if original_path.is_file():
+        print(
+            f"Warning: {clean_path.name} not found in images_clean/, "
+            f"using watermarked image from {sharing}"
+        )
+        return original_path
+
+    raise FileNotFoundError(
+        f"Episode art not found: {clean_path} (run remove_gemini_watermarks.py)"
+    )
 
 
 def process_episode(episode_filename: str, state: dict, *, headless: bool = True, force: bool = False) -> None:
@@ -75,8 +101,7 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
         print(f"Skipping {episode_filename} - blog file missing: {blog_file}")
         return
 
-    if not GRAPHIC_FILE.exists():
-        raise FileNotFoundError(f"Episode art not found: {GRAPHIC_FILE}")
+    episode_art = resolve_spotify_episode_art(episode)
 
     frontmatter = read_blog_frontmatter(blog_path)
     blog_url = episode.get("blog_url") or frontmatter.get("blog_url", "")
@@ -105,9 +130,10 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
         description = description[:3997] + "..."
 
     print(f"Uploading to Spotify: {episode_filename}...")
+    print(f"  Episode art: {episode_art.name}")
     spotify_url = publish_episode_to_spotify(
         audio_path,
-        GRAPHIC_FILE,
+        episode_art,
         title=title,
         description=description,
         headless=headless,
@@ -115,6 +141,7 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
 
     episode["spotify_url"] = spotify_url
     episode["spotify_title"] = title
+    episode["spotify_description"] = description
     update_blog_spotify_url(blog_path, spotify_url)
     print(f"Updated blog spotify_url: {blog_path}")
     print(f"Spotify episode: {spotify_url}")
@@ -124,6 +151,11 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     parser = argparse.ArgumentParser(description="Upload podcast episodes to Spotify for Creators")
+    parser.add_argument(
+        "episode",
+        nargs="?",
+        help="Episode MP3 filename (default: process all episodes in audio/)",
+    )
     parser.add_argument(
         "--force",
         action="store_true",
@@ -137,16 +169,21 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_directories()
-    episodes = list_audio_episodes()
+    BLOG_IMAGES_CLEAN_DIR.mkdir(parents=True, exist_ok=True)
+
+    if args.episode:
+        episodes = [args.episode]
+    else:
+        episodes = list_audio_episodes()
     if not episodes:
         print("No MP3 files found in audio/")
         return 0
 
     state = load_state()
-    print(f"Found {len(episodes)} podcast episodes\n")
+    print(f"Processing {len(episodes)} podcast episode(s)\n")
 
-    for index, episode_filename in enumerate(episodes, start=1):
-        print(f"{index}/{len(episodes)} {episode_filename}")
+    for episode_filename in episodes:
+        print(episode_filename)
         try:
             process_episode(
                 episode_filename,

@@ -5,7 +5,7 @@ excerpt: In Take A Hike EP 1, Luen Warneke and Cherry Judge guide us through the
   Falls walk from Paluma Dam, detailing family-friendly trails, swimming holes, and
   the historical Bullocky Tom's Track.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/6Dp8Ky8FIMIoyBSs9E10cb?si=u6z69GGDQgm-kubHR2AUkQ
 episode_file: LISTNR - TAKE A HIKE EP 1.mp3
 blog_url: https://townsvillebushwalkingclub.com/crystal-falls-paluma-hiking-guide/
 ---

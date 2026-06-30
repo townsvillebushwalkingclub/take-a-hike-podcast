@@ -1,9 +1,10 @@
 ---
 slug: christmas-gift-guide
 title: Hikers Christmas Gift Guide and 2022 Wrap-Up
-excerpt: "Find out what should be under your Christmas tree: Blair, Cherry and Luen share hiker gift ideas, gear tips and the best adventures of 2022 from North Queensland."
+excerpt: 'Find out what should be under your Christmas tree: Blair, Cherry and Luen
+  share hiker gift ideas, gear tips and the best adventures of 2022 from North Queensland.'
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/2zruSIrEIeOKBJU054Paxj?si=zMlhhwFFSj-KpzKltEAOsA
 episode_file: Find out what SHOULD be under your Christmas Tree and the best adventures
   of 202.mp3
 blog_url: https://townsvillebushwalkingclub.com/christmas-gift/

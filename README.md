@@ -47,7 +47,7 @@ take-a-hike-podcast/
 ├── requirements.txt
 ├── package.json            # Node deps for remove_gemini_watermarks.py
 ├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
-├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
+├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video creation)
 ├── TAH_Podcast_Cover.jpg  # Cover template for generate_blog_image.py
 └── townsville-bushwalking-club-logo.png  # Club logo passed to cover image generation
 ```
@@ -116,7 +116,7 @@ Spotify for Creators has no public upload API. This project uses Playwright with
 SPOTIFY_PODCAST_ID=033EbCntVyEDfTa2Dz5EgH
 ```
 
-Episode art uses `TAH_Podcast_Graphics.jpg` for every upload.
+Episode art uses the watermark-free sharing image from `images_clean/` (from `remove_gemini_watermarks.py`). Season and episode number fields are left blank on upload.
 
 If uploads fail with cookie errors, re-export `spotify-cookies.json` or run with `--no-headless` to debug the browser session.
 
@@ -267,9 +267,11 @@ Blog, Spotify, and YouTube scripts still apply `clean_text()` to AI-generated ti
     "blog_url": "https://townsvillebushwalkingclub.com/topic-slug/",
     "spotify_url": "",
     "spotify_title": "",
+    "spotify_description": "",
     "youtube_id": "",
     "youtube_url": "",
-    "youtube_title": ""
+    "youtube_title": "",
+    "youtube_description": ""
   }
 }
 ```

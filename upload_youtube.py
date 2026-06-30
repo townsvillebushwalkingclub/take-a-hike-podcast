@@ -130,6 +130,7 @@ def process_episode(
     episode["youtube_id"] = video_id
     episode["youtube_url"] = youtube_url
     episode["youtube_title"] = title
+    episode["youtube_description"] = description
 
     update_blog_youtube_url(blog_path, youtube_url)
     print(f"Updated blog youtube_url: {blog_path}")

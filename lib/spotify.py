@@ -2,6 +2,7 @@
 
 import json
 import logging
+import re
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -137,20 +138,7 @@ def publish_episode_to_spotify(
             title_input.wait_for(state="visible", timeout=5000)
             title_input.fill(title)
 
-            desc_editor = page.locator('[name="description"][contenteditable="true"]')
-            if desc_editor.count() > 0:
-                element = desc_editor.first
-                element.wait_for(state="visible", timeout=5000)
-                element.evaluate(
-                    """(node, text) => {
-                        node.focus();
-                        node.innerText = text;
-                        node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
-                        node.dispatchEvent(new Event('change', { bubbles: true }));
-                    }""",
-                    description,
-                )
-            page.wait_for_timeout(500)
+            _clear_season_episode_numbers(page)
 
             change_btn = page.locator('button:has-text("Change")').first
             if change_btn.count() > 0:
@@ -165,13 +153,15 @@ def publish_episode_to_spotify(
             crop_modal = page.locator('[data-encore-id="dialogConfirmation"]')
             save_btn = crop_modal.get_by_role("button", name="Save")
             try:
-                save_btn.first.wait_for(state="visible", timeout=10000)
+                save_btn.first.wait_for(state="visible", timeout=15000)
                 page.wait_for_timeout(2000)
                 save_btn.first.click()
-                crop_modal.wait_for(state="hidden", timeout=30000)
-                page.wait_for_timeout(1000)
+                crop_modal.wait_for(state="hidden", timeout=60000)
+                page.wait_for_timeout(2000)
             except Exception as exc:
                 logger.warning("Crop modal Save button not found or skipped: %s", exc)
+
+            _fill_description(page, description)
 
             try:
                 cookie_close = page.locator("#onetrust-close-btn-container button")
@@ -180,14 +170,10 @@ def publish_episode_to_spotify(
             except Exception:
                 logger.debug("OneTrust close button not found, continuing", exc_info=True)
 
-            next_btn = page.locator('button[form="details-form"]:has-text("Next")')
-            next_btn.wait_for(state="visible", timeout=5000)
-            next_btn.click()
-            page.wait_for_timeout(3000)
+            _advance_to_review_step(page, description)
 
-            now_label = page.locator('label[for="publish-date-now"]')
-            now_label.wait_for(state="visible", timeout=10000)
-            now_label.click()
+            review_step = page.locator('label[for="publish-date-now"]')
+            review_step.click()
             page.wait_for_timeout(1500)
 
             publish_btn = page.locator('button[form="review-form"]:has-text("Publish")')
@@ -231,3 +217,118 @@ def publish_episode_to_spotify(
             raise RuntimeError(f"Spotify upload failed: {exc}") from exc
         finally:
             browser.close()
+
+
+def _clear_season_episode_numbers(page) -> None:
+    """Leave Spotify season and episode number fields blank."""
+    for selector in ("#season-number", "#episode-number"):
+        field = page.locator(selector)
+        if field.count() > 0:
+            field.fill("")
+            logger.debug("Cleared %s", selector)
+
+
+def _description_text_length(page) -> int:
+    """Return the current character count in the description editor."""
+    editor = page.locator('[name="description"][contenteditable="true"]')
+    if editor.count() == 0:
+        return 0
+    return editor.first.evaluate(
+        "(node) => (node.innerText || node.textContent || '').trim().length"
+    )
+
+
+def _description_counter_value(page) -> int | None:
+    """Parse Spotify's 'N / 4000' description counter when present."""
+    match = re.search(r"(\d+)\s*/\s*4000", page.locator("body").inner_text())
+    return int(match.group(1)) if match else None
+
+
+def _fill_description(page, description: str) -> None:
+    """Fill the Spotify contenteditable description field, verifying it stuck."""
+    desc_editor = page.locator('[name="description"][contenteditable="true"]')
+    if desc_editor.count() == 0:
+        raise RuntimeError("Spotify description editor not found")
+
+    element = desc_editor.first
+    element.wait_for(state="visible", timeout=5000)
+    expected_min = max(100, min(len(description.strip()), 500))
+
+    for attempt in range(4):
+        element.evaluate(
+            """(node, text) => {
+                node.focus();
+                node.innerText = text;
+                node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+                node.dispatchEvent(new Event('change', { bubbles: true }));
+            }""",
+            description,
+        )
+        page.wait_for_timeout(1000)
+
+        text_len = _description_text_length(page)
+        counter = _description_counter_value(page)
+        if text_len >= expected_min and (counter is None or counter >= expected_min):
+            logger.debug("Description filled via innerText (%d chars)", text_len)
+            return
+
+        logger.warning(
+            "Description fill attempt %d incomplete (text=%d, counter=%s)",
+            attempt + 1,
+            text_len,
+            counter,
+        )
+        page.evaluate("(text) => navigator.clipboard.writeText(text)", description)
+        element.click()
+        page.keyboard.press("Control+A")
+        page.keyboard.press("Control+V")
+        page.wait_for_timeout(1000)
+        element.evaluate(
+            """(node) => {
+                node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+                node.dispatchEvent(new Event('change', { bubbles: true }));
+            }"""
+        )
+        page.wait_for_timeout(500)
+        text_len = _description_text_length(page)
+        counter = _description_counter_value(page)
+        if text_len >= expected_min and (counter is None or counter >= expected_min):
+            logger.debug("Description filled via clipboard (%d chars)", text_len)
+            return
+
+    raise RuntimeError(
+        "Spotify description field not filled "
+        f"(text={_description_text_length(page)}, counter={_description_counter_value(page)})"
+    )
+
+
+def _advance_to_review_step(page, description: str) -> None:
+    """Click through the details step and wait for the review/publish screen."""
+    next_btn = page.locator('button[form="details-form"]:has-text("Next")')
+    review_step = page.locator('label[for="publish-date-now"]')
+
+    for attempt in range(4):
+        if review_step.is_visible():
+            return
+
+        if next_btn.count() == 0 or not next_btn.is_visible():
+            review_step.wait_for(state="visible", timeout=15000)
+            return
+
+        if next_btn.is_disabled():
+            alerts = page.locator('[role="alert"]').all_text_contents()
+            raise RuntimeError(f"Spotify details form invalid: {alerts or 'Next button disabled'}")
+
+        _fill_description(page, description)
+        next_btn.click()
+        try:
+            review_step.wait_for(state="visible", timeout=20000)
+            return
+        except Exception:
+            logger.warning("Review step not visible after Next (attempt %d)", attempt + 1)
+
+    page.screenshot(path="spotify_upload_failure.png", full_page=True)
+    raise RuntimeError(
+        "Could not advance to Spotify review step. "
+        "Saved screenshot to spotify_upload_failure.png"
+    )

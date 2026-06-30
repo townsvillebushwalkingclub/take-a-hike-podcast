@@ -5,7 +5,7 @@ excerpt: Wondering if there are any cassowaries in Paluma? Join Blair, Cherry Ju
   and Luen Warneke as they discuss rare cassowary sightings, how to spot their tracks,
   and a complete guide to hiking Godwin's Peak and Pick Falls in the Paluma Range.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/7n7bpOAkC3A6V4oYqysJpU?si=-5-z4I0jTRGQVTL0MMBMJQ
 episode_file: Take a Hike - Are there any cassowaries in Paluma _ Godwin_s Peak.mp3
 blog_url: https://townsvillebushwalkingclub.com/cassowaries-paluma-godwins-peak/
 ---

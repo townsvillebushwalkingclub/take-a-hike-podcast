@@ -5,7 +5,7 @@ excerpt: Looking for a family friendly hike? We explore a beautiful half-day loo
   at Big Crystal Creek in Paluma. Plus, the team tackles the awkward but essential
   topic of what to do if you have to do a number 2 while out on the trails.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/2zFOxdX6cpQOic9NpxRWy1?si=WkZzaZMYS7OCMG8dIytnag
 episode_file: Take a Hike - A family friendly hike and what to do if you have to do
   a number 2.mp3
 blog_url: https://townsvillebushwalkingclub.com/big-crystal-creek-family-hike-toilet-etiquette/
