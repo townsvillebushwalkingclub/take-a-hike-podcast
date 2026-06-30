@@ -78,6 +78,47 @@ def resolve_spotify_episode_art(episode: dict) -> Path:
     )
 
 
+def resolve_spotify_metadata(
+    episode: dict,
+    episode_filename: str,
+    blog_url: str,
+    transcript: str,
+) -> tuple[str, str, bool]:
+    """
+    Return (title, description) for Spotify, reusing cached values when available.
+
+    Returns:
+        title, description, generated (True if Gemini was called this run)
+    """
+    cached_title = episode.get("spotify_title", "").strip()
+    cached_description = episode.get("spotify_description", "").strip()
+    if cached_title and cached_description:
+        print(f"Using cached Spotify metadata for {episode_filename}")
+        return cached_title, cached_description, False
+
+    print(f"Generating Spotify metadata for {episode_filename}...")
+
+    prompt = SPOTIFY_PROMPT.format(
+        episode_filename=episode_filename,
+        blog_url=blog_url,
+        transcript=transcript,
+        name_note=NAME_PROMPT_NOTE,
+        text_note=TEXT_PROMPT_NOTE,
+    )
+    metadata = generate_json_sync(prompt, SpotifyMetadata)
+
+    title = clean_text(metadata.title.strip())
+    summary = clean_text(metadata.summary)
+    if len(title) > 120:
+        title = title[:117] + "..."
+
+    description = clean_text(build_description(summary, blog_url))
+    if len(description) > 4000:
+        description = description[:3997] + "..."
+
+    return title, description, True
+
+
 def process_episode(episode_filename: str, state: dict, *, headless: bool = True, force: bool = False) -> None:
     """Upload one episode to Spotify if not already uploaded."""
     episode = get_episode(state, episode_filename)
@@ -109,25 +150,13 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
         raise ValueError(f"No blog_url for {episode_filename}")
 
     transcript = read_clean_transcript(episode, episode_filename)
-    print(f"Generating Spotify metadata for {episode_filename}...")
-
-    prompt = SPOTIFY_PROMPT.format(
-        episode_filename=episode_filename,
-        blog_url=blog_url,
-        transcript=transcript,
-        name_note=NAME_PROMPT_NOTE,
-        text_note=TEXT_PROMPT_NOTE,
+    title, description, _generated = resolve_spotify_metadata(
+        episode, episode_filename, blog_url, transcript
     )
-    metadata = generate_json_sync(prompt, SpotifyMetadata)
 
-    title = clean_text(metadata.title.strip())
-    summary = clean_text(metadata.summary)
-    if len(title) > 120:
-        title = title[:117] + "..."
-
-    description = clean_text(build_description(summary, blog_url))
-    if len(description) > 4000:
-        description = description[:3997] + "..."
+    episode["spotify_title"] = title
+    episode["spotify_description"] = description
+    save_state(state)
 
     print(f"Uploading to Spotify: {episode_filename}...")
     print(f"  Episode art: {episode_art.name}")
@@ -140,9 +169,8 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
     )
 
     episode["spotify_url"] = spotify_url
-    episode["spotify_title"] = title
-    episode["spotify_description"] = description
     update_blog_spotify_url(blog_path, spotify_url)
+    save_state(state)
     print(f"Updated blog spotify_url: {blog_path}")
     print(f"Spotify episode: {spotify_url}")
 
@@ -191,9 +219,9 @@ def main() -> int:
                 headless=not args.no_headless,
                 force=args.force,
             )
-            save_state(state)
         except Exception as exc:
             print(f"Error uploading to Spotify {episode_filename}: {exc}")
+            save_state(state)
             continue
         print()
 

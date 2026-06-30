@@ -151,15 +151,7 @@ def publish_episode_to_spotify(
                     thumb_input.set_input_files(abs_thumb)
 
             crop_modal = page.locator('[data-encore-id="dialogConfirmation"]')
-            save_btn = crop_modal.get_by_role("button", name="Save")
-            try:
-                save_btn.first.wait_for(state="visible", timeout=15000)
-                page.wait_for_timeout(2000)
-                save_btn.first.click()
-                crop_modal.wait_for(state="hidden", timeout=60000)
-                page.wait_for_timeout(2000)
-            except Exception as exc:
-                logger.warning("Crop modal Save button not found or skipped: %s", exc)
+            _save_episode_art_crop(page, crop_modal)
 
             _fill_description(page, description)
 
@@ -228,6 +220,44 @@ def _clear_season_episode_numbers(page) -> None:
             logger.debug("Cleared %s", selector)
 
 
+def _save_episode_art_crop(page, crop_modal) -> None:
+    """Confirm the episode art crop dialog when it appears."""
+    save_btn = crop_modal.get_by_role("button", name="Save")
+    try:
+        save_btn.first.wait_for(state="visible", timeout=15000)
+        page.wait_for_timeout(1500)
+        save_btn.first.click()
+        page.wait_for_timeout(1000)
+    except Exception as exc:
+        logger.warning("Crop modal Save button not found or skipped: %s", exc)
+        return
+
+    _dismiss_blocking_overlays(page)
+
+
+def _dismiss_blocking_overlays(page) -> None:
+    """Close crop/confirmation dialogs whose backdrop blocks the details form."""
+    save_selectors = (
+        '[data-encore-id="dialogConfirmation"] button:has-text("Save")',
+        'button:has-text("Save")',
+    )
+    for attempt in range(4):
+        visible_save = None
+        for selector in save_selectors:
+            save = page.locator(selector).first
+            if save.count() > 0 and save.is_visible():
+                visible_save = save
+                break
+        if visible_save is None:
+            return
+        try:
+            visible_save.click(timeout=3000)
+            page.wait_for_timeout(1500)
+        except Exception:
+            page.keyboard.press("Escape")
+            page.wait_for_timeout(500)
+
+
 def _description_text_length(page) -> int:
     """Return the current character count in the description editor."""
     editor = page.locator('[name="description"][contenteditable="true"]')
@@ -239,9 +269,44 @@ def _description_text_length(page) -> int:
 
 
 def _description_counter_value(page) -> int | None:
-    """Parse Spotify's 'N / 4000' description counter when present."""
-    match = re.search(r"(\d+)\s*/\s*4000", page.locator("body").inner_text())
-    return int(match.group(1)) if match else None
+    """Parse Spotify's description counter near the details form."""
+    try:
+        form_text = page.locator("#details-form").inner_text()
+    except Exception:
+        return None
+    counts = [int(match) for match in re.findall(r"(\d+)\s*/\s*4000", form_text)]
+    return max(counts) if counts else None
+
+
+def _description_has_validation_error(page) -> bool:
+    """True when Spotify still marks the description field as invalid."""
+    editor = page.locator('[name="description"][contenteditable="true"]').first
+    if editor.count() == 0:
+        return True
+    if editor.get_attribute("aria-invalid") == "true":
+        return True
+    section = page.locator('label:has-text("Description")').locator("xpath=ancestor::div[1]")
+    if section.count() == 0:
+        return False
+    required = section.get_by_text("Required", exact=True)
+    return required.count() > 0 and required.first.is_visible()
+
+
+def _description_accepted_by_spotify(page, description: str) -> bool:
+    """True when Spotify's form state accepts the description (not just DOM text)."""
+    if _description_has_validation_error(page):
+        return False
+
+    expected = len(description.strip())
+    if expected == 0:
+        return False
+    min_chars = max(100, int(expected * 0.85))
+
+    counter = _description_counter_value(page)
+    if counter is not None and counter >= min_chars:
+        return True
+
+    return _description_text_length(page) >= min_chars
 
 
 def _fill_description(page, description: str) -> None:
@@ -252,54 +317,86 @@ def _fill_description(page, description: str) -> None:
 
     element = desc_editor.first
     element.wait_for(state="visible", timeout=5000)
-    expected_min = max(100, min(len(description.strip()), 500))
 
-    for attempt in range(4):
-        element.evaluate(
-            """(node, text) => {
-                node.focus();
-                node.innerText = text;
-                node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
-                node.dispatchEvent(new Event('change', { bubbles: true }));
-            }""",
-            description,
-        )
-        page.wait_for_timeout(1000)
+    fill_methods = (
+        ("keyboard", _fill_description_via_keyboard),
+        ("exec_command", _fill_description_via_exec_command),
+        ("clipboard", _fill_description_via_clipboard),
+    )
 
-        text_len = _description_text_length(page)
-        counter = _description_counter_value(page)
-        if text_len >= expected_min and (counter is None or counter >= expected_min):
-            logger.debug("Description filled via innerText (%d chars)", text_len)
+    for attempt, (method_name, fill_fn) in enumerate(fill_methods, start=1):
+        fill_fn(page, element, description)
+        if _description_accepted_by_spotify(page, description):
+            logger.debug("Description filled via %s (%d chars)", method_name, _description_text_length(page))
             return
 
         logger.warning(
-            "Description fill attempt %d incomplete (text=%d, counter=%s)",
-            attempt + 1,
-            text_len,
-            counter,
+            "Description fill attempt %d (%s) rejected by Spotify (text=%d, counter=%s, required=%s)",
+            attempt,
+            method_name,
+            _description_text_length(page),
+            _description_counter_value(page),
+            _description_has_validation_error(page),
         )
-        page.evaluate("(text) => navigator.clipboard.writeText(text)", description)
-        element.click()
-        page.keyboard.press("Control+A")
-        page.keyboard.press("Control+V")
-        page.wait_for_timeout(1000)
-        element.evaluate(
-            """(node) => {
-                node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
-                node.dispatchEvent(new Event('change', { bubbles: true }));
-            }"""
-        )
-        page.wait_for_timeout(500)
-        text_len = _description_text_length(page)
-        counter = _description_counter_value(page)
-        if text_len >= expected_min and (counter is None or counter >= expected_min):
-            logger.debug("Description filled via clipboard (%d chars)", text_len)
-            return
 
     raise RuntimeError(
-        "Spotify description field not filled "
-        f"(text={_description_text_length(page)}, counter={_description_counter_value(page)})"
+        "Spotify description field not accepted "
+        f"(text={_description_text_length(page)}, counter={_description_counter_value(page)}, "
+        f"required_error={_description_has_validation_error(page)})"
     )
+
+
+def _fill_description_via_keyboard(page, element, description: str) -> None:
+    element.click()
+    page.keyboard.press("Control+A")
+    page.keyboard.press("Backspace")
+    page.wait_for_timeout(200)
+    page.keyboard.insert_text(description)
+    page.wait_for_timeout(500)
+    element.evaluate(
+        """(node) => {
+            node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+            node.dispatchEvent(new Event('change', { bubbles: true }));
+            node.blur();
+        }"""
+    )
+    page.wait_for_timeout(800)
+
+
+def _fill_description_via_exec_command(page, element, description: str) -> None:
+    element.evaluate(
+        """(node, text) => {
+            node.focus();
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            document.execCommand('delete', false);
+            document.execCommand('insertText', false, text);
+            node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+            node.dispatchEvent(new Event('change', { bubbles: true }));
+            node.blur();
+        }""",
+        description,
+    )
+    page.wait_for_timeout(800)
+
+
+def _fill_description_via_clipboard(page, element, description: str) -> None:
+    page.evaluate("(text) => navigator.clipboard.writeText(text)", description)
+    element.click()
+    page.keyboard.press("Control+A")
+    page.keyboard.press("Control+V")
+    page.wait_for_timeout(800)
+    element.evaluate(
+        """(node) => {
+            node.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertFromPaste' }));
+            node.dispatchEvent(new Event('change', { bubbles: true }));
+            node.blur();
+        }"""
+    )
+    page.wait_for_timeout(500)
 
 
 def _advance_to_review_step(page, description: str) -> None:
@@ -311,6 +408,8 @@ def _advance_to_review_step(page, description: str) -> None:
         if review_step.is_visible():
             return
 
+        _dismiss_blocking_overlays(page)
+
         if next_btn.count() == 0 or not next_btn.is_visible():
             review_step.wait_for(state="visible", timeout=15000)
             return
@@ -320,6 +419,7 @@ def _advance_to_review_step(page, description: str) -> None:
             raise RuntimeError(f"Spotify details form invalid: {alerts or 'Next button disabled'}")
 
         _fill_description(page, description)
+        _dismiss_blocking_overlays(page)
         next_btn.click()
         try:
             review_step.wait_for(state="visible", timeout=20000)
