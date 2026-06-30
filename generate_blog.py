@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Generate Ghost-compatible blog posts from transcripts using Gemini 2.5 Pro."""
+"""Generate Ghost-compatible blog posts from transcripts using Gemini 3 Pro."""
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from lib.blog import write_blog_post
-from lib.config import BLOGS_DIR, build_blog_url, ensure_directories
+from lib.blog import format_episode_title, normalize_excerpt, write_blog_post
+from lib.config import BLOGS_DIR, GEMINI_MODEL, PLACEHOLDER_SPOTIFY_URL, build_blog_url, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
@@ -17,9 +18,21 @@ from lib.transcripts import read_clean_transcript
 
 
 class BlogPost(BaseModel):
-    slug: str = Field(description="URL slug: lowercase, hyphenated, include year when relevant")
+    slug: str = Field(description="URL slug: lowercase, hyphenated, no year suffix")
     title: str = Field(description="Engaging SEO title under 60 characters")
+    excerpt: str = Field(
+        description="SEO meta description, max 250 characters, plain text, no markdown"
+    )
     body: str = Field(description="Full blog post in Markdown with clear paragraphs")
+
+
+_SLUG_YEAR_SUFFIX = re.compile(r"-\d{4}$")
+
+
+def normalize_slug(slug: str) -> str:
+    """Lowercase slug and drop a trailing -YYYY year suffix if the model adds one."""
+    normalized = slug.strip().lower()
+    return _SLUG_YEAR_SUFFIX.sub("", normalized)
 
 
 BLOG_PROMPT = """You are a content creator for the "Take A Hike" podcast, a show about bushwalking and hiking adventures in and around Townsville, Australia. The podcast is hosted by Blair Woodcock with regular guests Luen Warneke and Cherry Judge, along with occasional special guests.
@@ -28,12 +41,18 @@ Based on the following podcast transcript, create a blog post for the Townsville
 
 Episode filename: {episode_filename}
 
+Episode title (from audio filename): {episode_title}
+
 Transcript:
 {transcript}
 
 Requirements:
-- slug: lowercase, hyphenated, descriptive Ghost URL slug (include year when relevant, e.g. walkers-creek-2026)
+- slug: lowercase, hyphenated, descriptive Ghost URL slug (do not include a year)
 - title: engaging SEO title under 60 characters
+- excerpt: SEO meta description, max 250 characters, plain text (no markdown)
+  * Summarise the episode for search and social previews
+  * Weave in key words or phrases from the episode title above where natural
+  * Mention specific places, tracks or topics from the episode when relevant
 - body: full blog post in Markdown
   * Well-structured with clear paragraphs
   * Capture key points, stories, and advice from the episode
@@ -43,7 +62,7 @@ Requirements:
 - {text_note}
 
 Respond with JSON only in this exact shape:
-{{"slug": "example-slug-2026", "title": "Example Title", "body": "Markdown content here"}}
+{{"slug": "walkers-creek-paluma", "title": "Example Title", "excerpt": "Short SEO summary mentioning the episode topic.", "body": "Markdown content here"}}
 """
 
 
@@ -58,18 +77,21 @@ def process_episode(episode_filename: str, state: dict, force: bool = False) -> 
             return
 
     transcript = read_clean_transcript(episode, episode_filename)
-    print(f"Generating blog post for {episode_filename}...")
+    print(f"Generating blog post for {episode_filename} (model: {GEMINI_MODEL})...")
 
+    episode_title = format_episode_title(episode_filename)
     prompt = BLOG_PROMPT.format(
         episode_filename=episode_filename,
+        episode_title=episode_title,
         transcript=transcript,
         name_note=NAME_PROMPT_NOTE,
         text_note=TEXT_PROMPT_NOTE,
     )
     blog_post = generate_json_sync(prompt, BlogPost)
 
-    slug = blog_post.slug.strip().lower()
+    slug = normalize_slug(blog_post.slug)
     title = clean_text(blog_post.title.strip())
+    excerpt = normalize_excerpt(clean_text(blog_post.excerpt.strip()))
     body = clean_text(blog_post.body)
     if len(title) > 60:
         title = title[:57] + "..."
@@ -81,9 +103,11 @@ def process_episode(episode_filename: str, state: dict, force: bool = False) -> 
         blog_path,
         slug=slug,
         title=title,
+        excerpt=excerpt,
         body=body,
         episode_file=episode_filename,
         blog_url=blog_url,
+        spotify_url=PLACEHOLDER_SPOTIFY_URL,
     )
 
     episode["blog_slug"] = slug

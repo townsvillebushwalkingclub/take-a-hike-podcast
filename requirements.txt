@@ -1,4 +1,4 @@
-gemini-webapi>=2.0.0
+-e vendor/gemini-webapi
 google-api-python-client>=2.197.0
 google-auth-httplib2>=0.4.0
 google-auth-oauthlib>=1.4.0
@@ -8,3 +8,4 @@ openai-whisper>=20250625
 python-dotenv>=1.2.2
 pydantic>=2.12.5,<2.13
 pyyaml>=6.0.3
+playwright>=1.49.0

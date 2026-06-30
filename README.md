@@ -1,18 +1,21 @@
 # Take A Hike Podcast
 
-A processing pipeline for the "Take A Hike" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates transcription, blog post generation, video creation, and YouTube upload for podcast episodes.
+A processing pipeline for the "Take A Hike" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates transcription, blog post generation, Spotify and YouTube publishing, and video creation for podcast episodes.
 
 Find the audio files from the podcast: <https://drive.google.com/drive/folders/1g2efA-Rw0RiuZEYKuO2ItKbOy30V2nMH?usp=drive_link>
 
 ## Overview
 
-The pipeline is split into five independent scripts:
+The pipeline is split into eight independent scripts:
 
 1. **`transcribe.py`** — Transcribe audio to **raw** plain text using [openai-whisper](https://github.com/openai/whisper) (default: `large-v3`)
 2. **`clean_transcripts.py`** — Apply name and place-name fixes to raw transcripts, writing cleaned copies
-3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 2.5 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
-4. **`create_videos.py`** — Create portrait videos for social media
-5. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
+3. **`generate_blog.py`** — Generate Ghost-compatible blog posts using Gemini 3 Pro via [gemini-webapi](https://github.com/HanaokaYuzu/Gemini-API)
+4. **`generate_blog_image.py`** — Generate episode-specific sharing images via Gemini Nano Banana (optional)
+5. **`remove_gemini_watermarks.py`** — Remove Gemini watermarks from sharing images using [gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) (optional)
+6. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
+7. **`create_videos.py`** — Create portrait videos for social media
+8. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
 
 Each script is resumable via `podcasts_data.json` and skips work that is already done. Transcript text is stored in files only — not duplicated in the JSON file.
 
@@ -25,26 +28,56 @@ take-a-hike-podcast/
 │   ├── raw/                # Raw Whisper output (step 1)
 │   └── *.txt               # Cleaned transcripts after fixes (step 2)
 ├── blogs/                  # Ghost-compatible blog posts (.md)
+├── images/                 # Episode-specific 1200x630 sharing images (Nano Banana)
+├── images_clean/           # Watermark-free copies of sharing images
 ├── videos/                 # Generated portrait videos (.mp4)
-├── lib/                    # Shared config, state, Gemini, blog, YouTube helpers
+├── lib/                    # Shared config, state, Gemini, blog, YouTube, Spotify helpers
+├── vendor/
+│   └── gemini-webapi/      # Git submodule: HanaokaYuzu/Gemini-API (gemini-webapi)
 ├── podcasts_data.json      # Processing metadata only (paths and flags)
 ├── transcribe.py
 ├── clean_transcripts.py
 ├── generate_blog.py
+├── generate_blog_image.py
+├── remove_gemini_watermarks.py
+├── upload_spotify.py
 ├── create_videos.py
 ├── upload_youtube.py
 ├── migrate_podcasts_data.py
 ├── requirements.txt
-└── TAH_Podcast_Graphics.jpg  # Podcast graphic for video generation
+├── package.json            # Node deps for remove_gemini_watermarks.py
+├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
+├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video + Spotify episode art)
+├── TAH_Podcast_Cover.jpg  # Cover template for generate_blog_image.py
+└── townsville-bushwalking-club-logo.png  # Club logo passed to cover image generation
 ```
 
 ## Installation & Setup
 
-### 1. Install Dependencies
+### 1. Clone and Install Dependencies
+
+This project uses [Gemini-API](https://github.com/HanaokaYuzu/Gemini-API) as a git submodule (`vendor/gemini-webapi`). Clone with submodules, or initialise them after cloning:
+
+```bash
+git clone --recurse-submodules https://github.com/YOUR_ORG/take-a-hike-podcast.git
+cd take-a-hike-podcast
+```
+
+If you already cloned without submodules:
+
+```bash
+git submodule update --init --recursive
+```
+
+Then install Python dependencies (includes the submodule as an editable package):
 
 ```bash
 pip install -r requirements.txt
+playwright install chromium
+npm install
 ```
+
+`npm install` is only required if you use `remove_gemini_watermarks.py` (Gemini watermark removal). It installs `@pilio/gemini-watermark-remover` and `sharp`.
 
 You also need FFmpeg installed:
 
@@ -70,7 +103,24 @@ WHISPER_MODEL=large-v3
 
 `GEMINI_COOKIE_PATH` can be any writable directory. On Windows, forward slashes are recommended.
 
-### 3. Configure YouTube Upload (Optional)
+### 3. Configure Spotify Upload (Optional)
+
+Spotify for Creators has no public upload API. This project uses Playwright with exported browser cookies.
+
+1. Log in to [creators.spotify.com](https://creators.spotify.com)
+2. Open your show and copy the show ID from the URL: `https://creators.spotify.com/pod/show/<SPOTIFY_PODCAST_ID>/…`
+3. Export cookies to `spotify-cookies.json` in the project root (Cookie-Editor extension or browser DevTools while logged in)
+4. Add to `.env`:
+
+```text
+SPOTIFY_PODCAST_ID=033EbCntVyEDfTa2Dz5EgH
+```
+
+Episode art uses `TAH_Podcast_Graphics.jpg` for every upload.
+
+If uploads fail with cookie errors, re-export `spotify-cookies.json` or run with `--no-headless` to debug the browser session.
+
+### 4. Configure YouTube Upload (Optional)
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Enable YouTube Data API v3
@@ -86,13 +136,16 @@ Run the scripts in this order:
 python transcribe.py
 python clean_transcripts.py
 python generate_blog.py
+python generate_blog_image.py   # optional: episode-specific 1200x630 sharing images
+python remove_gemini_watermarks.py   # optional: strip Gemini watermarks from sharing images
+python upload_spotify.py
 python create_videos.py
 python upload_youtube.py
 ```
 
-`create_videos.py` can run in parallel with transcription/blog generation since it only needs the audio files.
+`create_videos.py` can run in parallel with earlier steps since it only needs the audio files.
 
-Each script supports `--force` to redo its step. `upload_youtube.py` also accepts `--youtube-credentials PATH`.
+Each script supports `--force` to redo its step. `upload_spotify.py` accepts `--no-headless` for debugging. `upload_youtube.py` accepts `--youtube-credentials PATH`.
 
 `transcribe.py` writes untouched Whisper output to `transcripts/raw/`. Re-run with `--force` to overwrite raw files after changing the model.
 
@@ -109,7 +162,7 @@ python migrate_podcasts_data.py
 ### Transcripts
 
 - **Raw** (`transcripts/raw/`): direct Whisper output, named after the episode MP3
-- **Cleaned** (`transcripts/`): after name and term fixes — used by blog and YouTube scripts
+- **Cleaned** (`transcripts/`): after name and term fixes — used by blog, Spotify, and YouTube scripts
 
 ### Blog Posts
 
@@ -117,17 +170,58 @@ Markdown files with YAML frontmatter in `blogs/`, compatible with [Ghost CMS](ht
 
 ```markdown
 ---
-slug: walkers-creek-2026
+slug: walkers-creek-paluma
 title: "Walkers Creek - Trip Report"
+excerpt: "Short SEO summary weaving in the episode topic from the audio filename."
 youtube_url: "PLACEHOLDER_YOUTUBE_URL"
+spotify_url: "PLACEHOLDER_SPOTIFY_URL"
 episode_file: "Take a Hike - Walkers Creek.mp3"
-blog_url: "https://townsvillebushwalkingclub.com/walkers-creek-2026/"
+blog_url: "https://townsvillebushwalkingclub.com/walkers-creek-paluma/"
 ---
 
 Blog body in Markdown...
 ```
 
-Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). After YouTube upload, `upload_youtube.py` replaces `PLACEHOLDER_YOUTUBE_URL` with the real video link.
+Posts use Ghost's root-level URL pattern (`/{slug}/`, not `/blog/{slug}/`). After upload, `upload_spotify.py` and `upload_youtube.py` replace the placeholder URLs with real links.
+
+### Sharing Images
+
+`generate_blog_image.py` sends `TAH_Podcast_Cover.jpg` and `townsville-bushwalking-club-logo.png` to Gemini and uses **Nano Banana** to generate a creative episode-specific cover inspired by the template, with the club logo incorporated.
+
+Output is saved to `images/{slug}-sharing.jpg` and tracked in `podcasts_data.json` as `sharing_image_file`.
+
+```bash
+python generate_blog_image.py --slug best-waterfalls-and-couples-adventures
+python generate_blog_image.py "Take a Hike - Best Waterfalls and Couples Adventures.mp3"
+python generate_blog_image.py --all
+```
+
+Image generation must be enabled on your Gemini account (same cookies as blog generation).
+
+### Watermark-free Sharing Images
+
+Gemini-generated images include a visible watermark in the bottom-right corner. `remove_gemini_watermarks.py` uses [@pilio/gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) to produce clean copies in `images_clean/`, keeping the originals in `images/` unchanged.
+
+Requires Node.js and `npm install` (see Installation).
+
+```bash
+python remove_gemini_watermarks.py
+python remove_gemini_watermarks.py --overwrite   # regenerate existing cleaned images
+```
+
+By default, reads from `images/` and writes to `images_clean/`. Use `--input-dir` and `--output-dir` to override.
+
+### Spotify Descriptions
+
+Built programmatically in this structure:
+
+```text
+{AI summary/intro}
+
+Read the full blog post: {blog_url}
+```
+
+Gemini generates the title and summary; the blog slug URL is included in every description.
 
 ### YouTube Descriptions
 
@@ -152,7 +246,7 @@ Videos are uploaded as **public**.
 
 Whisper mishearings are corrected in **step 2** (`clean_transcripts.py`), not during transcription. This includes **Luen Warneke**, **Cherry Judge**, place names (e.g. `Casawary` → **Cassowary**, `Wallamann` → **Wallaman**), and typographic punctuation normalization.
 
-Blog and YouTube scripts still apply `clean_text()` to AI-generated titles and body text.
+Blog, Spotify, and YouTube scripts still apply `clean_text()` to AI-generated titles and summaries.
 
 ## JSON Data Structure
 
@@ -167,9 +261,11 @@ Blog and YouTube scripts still apply `clean_text()` to AI-generated titles and b
     "whisper_model": "large-v3",
     "transcript_file": "transcripts/Take a Hike - Topic.txt",
     "transcript_done": true,
-    "blog_slug": "topic-slug-2026",
-    "blog_file": "blogs/topic-slug-2026.md",
-    "blog_url": "https://townsvillebushwalkingclub.com/topic-slug-2026/",
+    "blog_slug": "topic-slug",
+    "blog_file": "blogs/topic-slug.md",
+    "blog_url": "https://townsvillebushwalkingclub.com/topic-slug/",
+    "spotify_url": "",
+    "spotify_title": "",
     "youtube_id": "",
     "youtube_url": "",
     "youtube_title": ""
@@ -181,8 +277,12 @@ Blog and YouTube scripts still apply `clean_text()` to AI-generated titles and b
 
 - **"FFmpeg not found"** → Install FFmpeg and ensure it is in your PATH
 - **"Gemini cookies required"** → Set `GEMINI_SECURE_1PSID` and `GEMINI_SECURE_1PSIDTS` in `.env`
+- **"SPOTIFY_PODCAST_ID must be set"** → Add your show ID from creators.spotify.com to `.env`
+- **"spotify-cookies.json not found"** → Export cookies while logged in to creators.spotify.com
+- **Spotify upload fails / times out** → Re-export cookies; try `python upload_spotify.py --no-headless`
 - **"YouTube credentials not found"** → Download OAuth credentials and save as `client_secret.json`
 - **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
+- **"gemini-watermark-remover is not installed"** → Run `npm install` in the project root (requires Node.js)
 - **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
 - **Whisper MemoryError on large-v3** → Close other apps, ensure ~8GB+ free RAM, or use `WHISPER_MODEL=medium`
 

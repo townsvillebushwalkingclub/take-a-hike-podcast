@@ -1,0 +1,28 @@
+{
+  "name": "take-a-hike-podcast",
+  "version": "1.0.0",
+  "description": "A processing pipeline for the \"Take A Hike\" podcast, a LiSTNR production with Blair Woodcock, Luen Warneke, and Cherry Judge. This project automates transcription, blog post generation, Spotify and YouTube publishing, and video creation for podcast episodes.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/townsvillebushwalkingclub/take-a-hike-podcast.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/townsvillebushwalkingclub/take-a-hike-podcast/issues"
+  },
+  "homepage": "https://github.com/townsvillebushwalkingclub/take-a-hike-podcast#readme",
+  "dependencies": {
+    "@pilio/gemini-watermark-remover": "^1.0.28",
+    "sharp": "^0.34.5"
+  }
+}

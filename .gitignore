@@ -213,7 +213,9 @@ __marimo__/
 youtube_token.json
 youtube_credentials.json
 client_secret.json
+spotify-cookies.json
 gemini_cookies.json
+gemini_cache/
 temp_portrait.jpg
 !transcripts/.gitkeep
 !transcripts/raw/.gitkeep
@@ -221,6 +223,10 @@ temp_portrait.jpg
 *.mp3
 *.mp4
 !videos/.gitkeep
+!images/.gitkeep
 lib/__pycache__/
 .vscode/settings.json
 .DS_Store
+images/
+images_clean/
+node_modules/
