@@ -740,5 +740,33 @@
     "youtube_id": "",
     "youtube_url": "",
     "youtube_title": ""
+  },
+  "LISTNR - TAKE A HIKE EP 1.mp3": {
+    "episode_file": "LISTNR - TAKE A HIKE EP 1.mp3",
+    "raw_transcript_file": "transcripts/raw/LISTNR - TAKE A HIKE EP 1.txt",
+    "transcript_raw_done": true,
+    "whisper_model": "large-v3",
+    "transcript_file": "",
+    "transcript_done": false,
+    "blog_slug": "",
+    "blog_file": "",
+    "blog_url": "",
+    "youtube_id": "",
+    "youtube_url": "",
+    "youtube_title": ""
+  },
+  "TAKEAHIKELISTNR.mp3": {
+    "episode_file": "TAKEAHIKELISTNR.mp3",
+    "raw_transcript_file": "transcripts/raw/TAKEAHIKELISTNR.txt",
+    "transcript_raw_done": true,
+    "whisper_model": "large-v3",
+    "transcript_file": "",
+    "transcript_done": false,
+    "blog_slug": "",
+    "blog_file": "",
+    "blog_url": "",
+    "youtube_id": "",
+    "youtube_url": "",
+    "youtube_title": ""
   }
 }
