@@ -6,7 +6,7 @@ excerpt: Explore from the Paluma Dam to Jourama Falls in this episode! We discus
   pack be. Tune in for tips on ultralight hiking vs normal backpacking for your next
   adventure.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/3GenjOvQqQ46lKMxbb7Mji
 episode_file: Take a Hike - Expore from the Paluma Dam to Jourama Falls and how light
   should y.mp3
 blog_url: https://townsvillebushwalkingclub.com/paluma-dam-jourama-falls-pack-weight/

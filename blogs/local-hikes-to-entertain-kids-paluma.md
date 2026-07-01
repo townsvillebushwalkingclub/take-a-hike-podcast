@@ -5,7 +5,7 @@ excerpt: Looking for a few local hikes you can do to entertain the kids these sc
   holidays? Join Blair, Luen Warneke, and Cherry Judge as they explore family-friendly
   trails around Paluma, Jourama Falls, and Diorite Falls for the best swimming holes.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/22rYwGNNBytNDPSBE5WUI2
 episode_file: Take a Hike - Here are a few local hikes you can do to entertain the
   kids these.mp3
 blog_url: https://townsvillebushwalkingclub.com/local-hikes-to-entertain-kids-paluma/

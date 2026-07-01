@@ -12,7 +12,11 @@ from lib.blog import read_blog_frontmatter, update_blog_spotify_url
 from lib.config import AUDIO_DIR, BLOG_IMAGES_CLEAN_DIR, PROJECT_ROOT, ensure_directories
 from lib.gemini_client import generate_json_sync
 from lib.names import NAME_PROMPT_NOTE
-from lib.spotify import publish_episode_to_spotify
+from lib.spotify import (
+    find_published_episode_url,
+    list_published_episodes,
+    publish_episode_to_spotify,
+)
 from lib.state import get_episode, list_audio_episodes, load_state, save_state
 from lib.text import TEXT_PROMPT_NOTE, clean_text
 from lib.transcripts import read_clean_transcript
@@ -119,7 +123,71 @@ def resolve_spotify_metadata(
     return title, description, True
 
 
-def process_episode(episode_filename: str, state: dict, *, headless: bool = True, force: bool = False) -> None:
+def sync_spotify_urls(
+    state: dict,
+    *,
+    headless: bool = True,
+    episode_filenames: list[str] | None = None,
+    published_episodes: list[dict] | None = None,
+) -> int:
+    """
+    Match missing spotify_url values against the Spotify for Creators dashboard.
+
+    Returns:
+        Number of episodes backfilled.
+    """
+    targets = episode_filenames or list(state.keys())
+    pending = [
+        filename
+        for filename in targets
+        if filename in state and not state[filename].get("spotify_url")
+    ]
+    if not pending:
+        return 0
+
+    print(f"Syncing {len(pending)} episode(s) from Spotify dashboard...")
+    published = published_episodes or list_published_episodes(headless=headless)
+    print(f"Found {len(published)} published episode(s) on Spotify\n")
+
+    updated = 0
+    for episode_filename in pending:
+        episode = state[episode_filename]
+        title = episode.get("spotify_title", "").strip()
+        if not title:
+            continue
+
+        spotify_url = find_published_episode_url(title, published)
+        if not spotify_url:
+            continue
+
+        episode["spotify_url"] = spotify_url
+        blog_file = episode.get("blog_file", "")
+        if blog_file:
+            blog_path = Path(blog_file)
+            if not blog_path.is_file():
+                blog_path = PROJECT_ROOT / "blogs" / Path(blog_file).name
+            if blog_path.is_file():
+                update_blog_spotify_url(blog_path, spotify_url)
+
+        print(f"Linked {episode_filename}")
+        print(f"  {title}")
+        print(f"  {spotify_url}\n")
+        updated += 1
+
+    if updated:
+        save_state(state)
+    print(f"Synced {updated} Spotify URL(s).")
+    return updated
+
+
+def process_episode(
+    episode_filename: str,
+    state: dict,
+    *,
+    headless: bool = True,
+    force: bool = False,
+    published_episodes: list[dict] | None = None,
+) -> None:
     """Upload one episode to Spotify if not already uploaded."""
     episode = get_episode(state, episode_filename)
 
@@ -158,6 +226,15 @@ def process_episode(episode_filename: str, state: dict, *, headless: bool = True
     episode["spotify_description"] = description
     save_state(state)
 
+    if published_episodes is not None:
+        existing_url = find_published_episode_url(title, published_episodes)
+        if existing_url:
+            episode["spotify_url"] = existing_url
+            update_blog_spotify_url(blog_path, existing_url)
+            save_state(state)
+            print(f"Already on Spotify (matched by title): {existing_url}")
+            return
+
     print(f"Uploading to Spotify: {episode_filename}...")
     print(f"  Episode art: {episode_art.name}")
     spotify_url = publish_episode_to_spotify(
@@ -194,6 +271,16 @@ def main() -> int:
         action="store_true",
         help="Show the browser window (useful for debugging cookie/session issues)",
     )
+    parser.add_argument(
+        "--sync-only",
+        action="store_true",
+        help="Only backfill spotify_url from the Spotify dashboard (no uploads)",
+    )
+    parser.add_argument(
+        "--no-sync",
+        action="store_true",
+        help="Skip dashboard sync before uploading",
+    )
     args = parser.parse_args()
 
     ensure_directories()
@@ -208,6 +295,26 @@ def main() -> int:
         return 0
 
     state = load_state()
+    headless = not args.no_headless
+
+    if args.sync_only:
+        if args.episode:
+            sync_targets = [args.episode]
+        else:
+            sync_targets = list_audio_episodes()
+        sync_spotify_urls(state, headless=headless, episode_filenames=sync_targets)
+        return 0
+
+    published_episodes = None
+    if not args.no_sync:
+        published_episodes = list_published_episodes(headless=headless)
+        sync_spotify_urls(
+            state,
+            headless=headless,
+            episode_filenames=episodes,
+            published_episodes=published_episodes,
+        )
+
     print(f"Processing {len(episodes)} podcast episode(s)\n")
 
     for episode_filename in episodes:
@@ -216,8 +323,9 @@ def main() -> int:
             process_episode(
                 episode_filename,
                 state,
-                headless=not args.no_headless,
+                headless=headless,
                 force=args.force,
+                published_episodes=published_episodes,
             )
         except Exception as exc:
             print(f"Error uploading to Spotify {episode_filename}: {exc}")

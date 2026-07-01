@@ -5,7 +5,7 @@ excerpt: Hear about some long hikes you can do this long weekend in Townsville! 
   Woodcock, Luen Warneke, and Cherry Judge share 3-day treks in Girringun National
   Park, Wallaman Falls, the Herbert River, and Leave No Trace rules for rock cairns.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/24ljBk1gMsJNDjeJYYYCep
 episode_file: Take a Hike - Hear About Some Long Hikes You Can Do This Long Weekend
   in Townsvi.mp3
 blog_url: https://townsvillebushwalkingclub.com/long-weekend-hikes-townsville-wallaman/

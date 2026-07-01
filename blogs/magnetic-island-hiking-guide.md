@@ -5,7 +5,7 @@ excerpt: Discover the best hikes on Magnetic Island with the Take A Hike podcast
   Blair, Luen Warneke, and Cherry Judge share top trails, from the easy Hawkings Point
   sunset walk to hidden off-track adventures like Mount Cook and the Searchlight Tower.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/5pGvuPfpUxi6fTafWLiwhj
 episode_file: Take a Hike - Magnetic Island.mp3
 blog_url: https://townsvillebushwalkingclub.com/magnetic-island-hiking-guide/
 ---

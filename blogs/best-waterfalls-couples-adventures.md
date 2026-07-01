@@ -5,7 +5,7 @@ excerpt: Tune into the Best Waterfalls and Couples Adventures with Luen Warneke,
   Judge, and special guest Jodie Rummer. From hiking Moochoopa Falls to escaping leeches
   at Mount Sorrow, discover Townsville's top trails and wild couple adventures.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/5xBtP7QTdPqUfdi2OGaT6Y
 episode_file: Take a Hike - Best Waterfalls and Couples Adventures.mp3
 blog_url: https://townsvillebushwalkingclub.com/best-waterfalls-couples-adventures/
 ---

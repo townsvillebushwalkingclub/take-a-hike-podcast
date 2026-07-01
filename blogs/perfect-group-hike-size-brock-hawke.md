@@ -5,7 +5,7 @@ excerpt: Wondering what is the perfect number of people out on a group hike? We 
   ideal group sizes for safety and bonding, plus chat with Brock Hawke about extreme
   adventure racing from Charters Towers to New Zealand's Godzone.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/1XYVeAbZtSbSX1VECEeUYN
 episode_file: Take a Hike - What is the perfect number of people out on a group hike_
   Brock Ha.mp3
 blog_url: https://townsvillebushwalkingclub.com/perfect-group-hike-size-brock-hawke/

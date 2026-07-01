@@ -6,7 +6,7 @@ excerpt: Make the most of your Townsville wet season hikes with this guide! Lear
   tubing at Rolling Stone Creek or off-track navigating at Saddle Creek and Dolby
   Creek.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/1gNmIajcNKaubH6kbrqCBX
 episode_file: Take a Hike - Make the Most of Your Townsville Wet Season Hikes, What
   to Pack an.mp3
 blog_url: https://townsvillebushwalkingclub.com/townsville-wet-season-hikes-waterproofing-gear/
