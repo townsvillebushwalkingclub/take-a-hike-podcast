@@ -5,7 +5,7 @@ excerpt: Planning a hike in North Queensland? From Paluma to beyond, we discuss 
   to manage those unwelcome leech guests on the trail, plus stories from our recent
   holiday adventures.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/4QmBpnww6mxV54oxLZ9ClH?si=8vDMprggSDqUvmBW2g8SfA
 episode_file: Take a Hike, but you sometimes unwelcome guests tag along.mp3
 blog_url: https://townsvillebushwalkingclub.com/dealing-with-leeches-hiking-tips/
 ---

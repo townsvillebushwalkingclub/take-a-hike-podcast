@@ -5,7 +5,7 @@ excerpt: Join Cherry Judge and Luen Warneke on the Take a Hike podcast as they e
   the challenging and rewarding trek up Mt Halifax in Paluma Range National Park,
   featuring rope climbs, stunning waterfalls, and breathtaking summit views.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/3RpIOBH9NQy0j80gIzxkxu?si=WvVhr2k-RSOXWPi1Ddxb_g
 episode_file: Take a Hike to Mt Halifax.mp3
 blog_url: https://townsvillebushwalkingclub.com/take-a-hike-mt-halifax/
 ---

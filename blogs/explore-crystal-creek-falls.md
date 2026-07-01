@@ -6,7 +6,7 @@ excerpt: Join Luen Warneke and Cherry Judge on the Take A Hike podcast to explor
   Rock Garden, and get practical gear tips for this beginner-friendly 10km return
   walk.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/0yMQ02k2fKthKccOcBoTJB?si=wVttqI3SQsixf8F5osCNXg
 episode_file: Take a Hike and explore Crystal Creek falls.mp3
 blog_url: https://townsvillebushwalkingclub.com/explore-crystal-creek-falls/
 ---

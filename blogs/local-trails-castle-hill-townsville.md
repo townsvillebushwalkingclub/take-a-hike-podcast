@@ -5,7 +5,7 @@ excerpt: Take a Hike and discover some of the local trails around town, like Cas
   Hill, Mount Louisa, and the Douglas Hills! Join Blair, Cherry, and Luen as they
   explore Townsville's rich hiking history, hidden tracks, and best scrambling spots.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/576X8EEI9QB6LcELjDmYYn?si=moIJWf58SNKHZP9nxTH2Qg
 episode_file: Take a Hike and discover some of the local trails around town, like
   Castle Hill,.mp3
 blog_url: https://townsvillebushwalkingclub.com/local-trails-castle-hill-townsville/

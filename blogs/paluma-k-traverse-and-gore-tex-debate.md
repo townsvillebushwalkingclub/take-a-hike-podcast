@@ -5,7 +5,7 @@ excerpt: In this episode, Blair, Luen and Cherry debate what piece of hiking equ
   is a waste of money (Gore-Tex shoes!). Plus, we explore Paluma's 15km K-Traverse,
   featuring forgotten logging tracks, historic artefacts and secret swimming holes.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/6jBZAkNY71Mh1QCIxin1CD?si=nJCaPm1bTzerZzfhfYLsnA
 episode_file: Take a Hike - The K-Traverse and what piece of hiking equipment is a
   waste of mo.mp3
 blog_url: https://townsvillebushwalkingclub.com/paluma-k-traverse-and-gore-tex-debate/

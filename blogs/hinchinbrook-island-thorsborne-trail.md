@@ -5,7 +5,7 @@ excerpt: Join the Townsville Bushwalking Club as they dive into the Thorsborne T
   on Hinchinbrook Island, one of the world's best multi-day hikes. Discover expert
   tips on permits, camping, and must-see spots.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/4BCKSSJyfNEQ2n2tteE4As?si=Q_d1CtVITk2XLPZRUm4HWw
 episode_file: Take a Hike on Hinchinbrook island, one of the world_s best multi-day
   hikes.mp3
 blog_url: https://townsvillebushwalkingclub.com/hinchinbrook-island-thorsborne-trail/

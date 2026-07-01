@@ -5,7 +5,7 @@ excerpt: Looking to chase waterfalls after the rain? Join Blair Woodcock, Cherry
   and Luen Warneke as they explore the best secret seasonal waterfalls on Magnetic
   Island and across the mainland.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/7hC8SdWlwBcrawKbQng2NA?si=ju7JZ8fxSpayucR4VV7h7Q
 episode_file: Take a hike and discover some secret seasonal waterfalls.mp3
 blog_url: https://townsvillebushwalkingclub.com/discover-secret-seasonal-waterfalls-around-townsville/
 ---

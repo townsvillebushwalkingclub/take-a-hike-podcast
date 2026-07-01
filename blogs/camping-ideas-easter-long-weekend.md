@@ -5,7 +5,7 @@ excerpt: Looking for a getaway? Here are some camping ideas for the Easter long 
   in North Queensland. Blair, Luen Warneke and Cherry Judge explore the best spots
   to pitch a tent, from Paluma Dam and Broadwater to Porcupine Gorge and Salmon Creek.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/5VK06IUPiphExdbDKgBMuT?si=-gNBmHszS-mPkjsibVY3BA
 episode_file: Take a Hike - Here are some camping ideas for the Easter long weekend.mp3
 blog_url: https://townsvillebushwalkingclub.com/camping-ideas-easter-long-weekend/
 ---

@@ -5,7 +5,7 @@ excerpt: Join the Take A Hike team as they discuss exploring the remote beauty o
   Gold Creek in Paluma National Park, offering expert tips on navigation, off-track
   safety, and how to start your bushwalking journey.
 youtube_url: PLACEHOLDER_YOUTUBE_URL
-spotify_url: PLACEHOLDER_SPOTIFY_URL
+spotify_url: https://open.spotify.com/episode/7qN7NpRa02wgdIWUvny3jU?si=xt8f_n7FSNGTZx0-bbY3uA
 episode_file: Take a hike and explore Gold Creek in the Paluma National Park.mp3
 blog_url: https://townsvillebushwalkingclub.com/exploring-gold-creek-paluma/
 ---
