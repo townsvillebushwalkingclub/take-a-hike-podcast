@@ -61,6 +61,13 @@ def resolve_spotify_episode_art(episode: dict) -> Path:
     """Return watermark-free episode art from images_clean, or the original sharing image."""
     sharing = episode.get("sharing_image_file", "").strip()
     if not sharing:
+        slug = episode.get("blog_slug", "").strip()
+        if slug:
+            inferred = f"images/{slug}-sharing.jpg"
+            if (PROJECT_ROOT / inferred).is_file():
+                sharing = inferred
+                episode["sharing_image_file"] = sharing
+    if not sharing:
         raise FileNotFoundError(
             "No sharing_image_file in state. Run generate_blog_image.py first."
         )

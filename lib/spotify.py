@@ -371,9 +371,9 @@ def publish_episode_to_spotify(
             upload_input.wait_for(state="attached", timeout=10000)
             upload_input.set_input_files(abs_audio)
 
-            page.get_by_text("Generating preview").first.wait_for(state="visible", timeout=90000)
+            # Audio processing can take several minutes; the details form is the real ready signal.
             details_form = page.locator("#details-form")
-            details_form.wait_for(state="visible", timeout=60000)
+            details_form.wait_for(state="visible", timeout=180000)
             page.wait_for_timeout(1000)
 
             title_input = page.locator("#title-input")
@@ -381,6 +381,9 @@ def publish_episode_to_spotify(
             title_input.fill(title)
 
             _clear_season_episode_numbers(page)
+
+            _fill_description(page, description)
+            _dismiss_cookie_banners(page)
 
             change_btn = page.locator('button:has-text("Change")').first
             if change_btn.count() > 0:
@@ -395,7 +398,6 @@ def publish_episode_to_spotify(
             crop_modal = page.locator('[data-encore-id="dialogConfirmation"]')
             _save_episode_art_crop(page, crop_modal)
 
-            _fill_description(page, description)
             _dismiss_cookie_banners(page)
 
             _advance_to_review_step(page, description)
@@ -445,14 +447,21 @@ def _clear_season_episode_numbers(page) -> None:
 
 def _save_episode_art_crop(page, crop_modal) -> None:
     """Confirm the episode art crop dialog when it appears."""
+    try:
+        crop_modal.first.wait_for(state="visible", timeout=15000)
+    except Exception:
+        return
+
     save_btn = crop_modal.get_by_role("button", name="Save")
     try:
-        save_btn.first.wait_for(state="visible", timeout=15000)
-        page.wait_for_timeout(1500)
-        save_btn.first.click()
+        save_btn.first.wait_for(state="visible", timeout=5000)
         page.wait_for_timeout(1000)
+        save_btn.first.click()
+        crop_modal.first.wait_for(state="hidden", timeout=15000)
+        page.wait_for_timeout(500)
     except Exception as exc:
         logger.warning("Crop modal Save button not found or skipped: %s", exc)
+        _dismiss_blocking_overlays(page)
         return
 
     _dismiss_blocking_overlays(page)
