@@ -4,7 +4,7 @@ title: Discover Killymoon Creek & the WWII Plane Crash
 excerpt: Take a Hike and discover the WWII plane crash at Killymoon Creek! Host Blair
   Woodcock and guests Luen Warneke and Cherry Judge discuss this exclusive Townsville
   Bushwalking Club introductory hike, Saddle Mountain, and historic aviation sites.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=vHzF8OoP0Z8
 spotify_url: https://open.spotify.com/episode/12q9XeOxQnQzK9i28QjXvI?si=yJFoyzQ_QuOBUwUApoYrow
 episode_file: Take a Hike and discover the WWII plane crash at Killymoon.mp3
 blog_url: https://townsvillebushwalkingclub.com/discover-killymoon-wwii-plane-crash/

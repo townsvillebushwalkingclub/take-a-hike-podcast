@@ -4,7 +4,7 @@ title: Small Paluma Adventures to Burn Off Easter Eggs
 excerpt: Discover some small adventures to burn off those Easter eggs this long weekend!
   Join Blair, Cherry Judge and Luen Warneke as they share easy day hikes around Paluma,
   including Ethel Creek Falls, Birthday Creek and the hidden Mossy Falls.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=0InR9UU9bXo
 spotify_url: https://open.spotify.com/episode/5ElFTzO3SVqMnhETqYbyZC
 episode_file: Take a Hike - Discover some small adventures to burn off those Easter
   eggs this.mp3

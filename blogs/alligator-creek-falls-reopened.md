@@ -4,7 +4,7 @@ title: 'Alligator Creek Falls: Hiking the Townsville Classic'
 excerpt: Alligator Creek Falls is finally open! Join the Take A Hike team as we discuss
   this epic day hike, secret swimming spots, and tips for exploring this Bowling Green
   Bay National Park gem.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=xCA-el1-tqc
 spotify_url: https://open.spotify.com/episode/63fu4MyIzD4Bde4G33Jno3?si=0VRg-skDSuShLYZmwvkJnA
 episode_file: Take a Hike to Alligator Creek and discover a secret spot just up from
   the carpa.mp3

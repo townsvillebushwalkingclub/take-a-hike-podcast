@@ -4,7 +4,7 @@ title: Map Vs GPS & Hiking Mt Flagstone
 excerpt: Join Blair, Luen Warneke, and Cherry Judge as they debate Map Vs GPS navigation.
   Plus, discover what it takes to take a hike to Mt Flagstone in the Mingela State
   Forest. Enjoy practical tips and trail stories for your next adventure.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=eUtZ6LHtrkI
 spotify_url: https://open.spotify.com/episode/7zKnke906G8XotBK1eh8uB?si=h49x1dVgQxOiEC_rhj5UJQ
 episode_file: Take a Hike - Map Vs GPS & Take a hike to Mt Flagstone.mp3
 blog_url: https://townsvillebushwalkingclub.com/map-vs-gps-mt-flagstone/

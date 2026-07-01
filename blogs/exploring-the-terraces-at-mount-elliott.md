@@ -4,7 +4,7 @@ title: 'Hiking the Terraces: Mount Elliot''s Hidden Gem'
 excerpt: Join the Take A Hike podcast crew as they explore the stunning Terraces at
   Mount Elliot. Discover why this cascading waterfall wonder is a must-do and how
   the Townsville Bushwalking Club can help you gain access to this pristine location.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=yf6nN1CO8WI
 spotify_url: https://open.spotify.com/episode/0HClFvJ51krRgle0JS3RxQ?si=vq5sNfxkS6mPfclaruJTKw
 episode_file: Take a Hike to Mt Elliott with waterfall after waterfall, cascades,
   terraces and.mp3

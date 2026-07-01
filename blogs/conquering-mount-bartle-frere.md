@@ -4,7 +4,7 @@ title: 'Hiking Mount Bartle Frere: Queensland''s Highest Peak'
 excerpt: Join Blair Woodcock, Cherry Judge, and Luen Warneke as they explore the challenging
   climb to the summit of Mount Bartle Frere, the highest mountain in Queensland. Discover
   essential tips for tackling this iconic trail.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=u8Q2ch-Gmxc
 spotify_url: https://open.spotify.com/episode/1yZ3wPW7quGrKGOYPchhth?si=2p-sV8W1SC-i_GfhcQ8ybQ
 episode_file: Take a Hike to the highest mountain in Queensland, Mt Bartle Frere.mp3
 blog_url: https://townsvillebushwalkingclub.com/conquering-mount-bartle-frere/

@@ -4,7 +4,7 @@ title: Are Pack Liners Needed & Mitch Nissan on GodZone
 excerpt: Wondering are pack liners needed for your next hike? We debate keeping gear
   dry before Mitch Nissan tells us all about GodZon, the world's toughest adventure
   race. Hear about extreme trekking, 12,000m of elevation, and navigating New Zealand!
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=03Ki3SZI_00
 spotify_url: https://open.spotify.com/episode/1LttW7g0sG82pzpLXjLbMG?si=QRccSbiWRE2s22Tuh5Rt1Q
 episode_file: Take a Hike - Are Pack Liners needed_ and Mitch Nissan tells us all
   about GodZon.mp3

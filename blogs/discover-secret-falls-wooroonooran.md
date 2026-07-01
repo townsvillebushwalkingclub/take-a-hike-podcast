@@ -4,7 +4,7 @@ title: Discover Secret Falls in Wooroonooran Park
 excerpt: Discover some secret falls you won't find anywhere else! Join Blair Woodcock,
   Luen Warneke, and Cherry Judge as they explore Wooroonooran National Park's hidden
   gems, including off-track hikes to the stunning Cowley Falls and Tipun Falls.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=WFkjf9Y6M34
 spotify_url: https://open.spotify.com/episode/4MjoLu8u3lSVtWhTGI8icS?si=FABSo_BtQ4OLVC5QFELGEw
 episode_file: Take a Hike - Discover some secret falls you won_t find anywhere else.mp3
 blog_url: https://townsvillebushwalkingclub.com/discover-secret-falls-wooroonooran/

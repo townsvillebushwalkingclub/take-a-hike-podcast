@@ -5,7 +5,7 @@ excerpt: Explore from the Paluma Dam to Jourama Falls in this episode! We discus
   the Paluma to Jourama track, Black Hole Falls, and debate how light should your
   pack be. Tune in for tips on ultralight hiking vs normal backpacking for your next
   adventure.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=9AfHLjtfh4Y
 spotify_url: https://open.spotify.com/episode/3GenjOvQqQ46lKMxbb7Mji
 episode_file: Take a Hike - Expore from the Paluma Dam to Jourama Falls and how light
   should y.mp3

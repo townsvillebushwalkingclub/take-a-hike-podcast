@@ -4,7 +4,7 @@ title: Best Local Hikes to Entertain the Kids
 excerpt: Looking for a few local hikes you can do to entertain the kids these school
   holidays? Join Blair, Luen Warneke, and Cherry Judge as they explore family-friendly
   trails around Paluma, Jourama Falls, and Diorite Falls for the best swimming holes.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=fDeh5TqCerk
 spotify_url: https://open.spotify.com/episode/22rYwGNNBytNDPSBE5WUI2
 episode_file: Take a Hike - Here are a few local hikes you can do to entertain the
   kids these.mp3

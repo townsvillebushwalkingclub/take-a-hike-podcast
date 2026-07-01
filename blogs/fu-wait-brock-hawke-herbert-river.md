@@ -4,7 +4,7 @@ title: The F U Wait & Brock Hawke on the Herbert River
 excerpt: Join Blair, Luen Warneke, and Cherry Judge as we discuss the F U Wait on
   the trails. Then, special guest Brock Hawke takes us on a wild ride down his Herbert
   River, sharing an epic 30km whitewater rafting adventure through the Gorge.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=KrYJW5vvcgY
 spotify_url: https://open.spotify.com/episode/55vIEbe0KbUkJ7NhxouecQ
 episode_file: Take a Hike - Talking F U Wait & Special guest Brock Hawke and his Herbert
   River.mp3

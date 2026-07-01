@@ -1,12 +1,13 @@
 """Gemini 3 Pro client wrapper using gemini-webapi."""
 
 import asyncio
+import json
 import os
 import re
 from pathlib import Path
 from typing import TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from lib.config import GEMINI_IMAGE_MODEL, GEMINI_LOG_LEVEL, GEMINI_MODEL, resolve_gemini_model
 
@@ -108,10 +109,133 @@ def extract_json_text(text: str) -> str:
     return stripped
 
 
+def repair_json_newlines_in_strings(payload: str) -> str:
+    """Escape raw newlines/tabs inside JSON double-quoted strings."""
+    result: list[str] = []
+    in_string = False
+    escape = False
+
+    for char in payload:
+        if escape:
+            result.append(char)
+            escape = False
+            continue
+        if char == "\\" and in_string:
+            result.append(char)
+            escape = True
+            continue
+        if char == '"':
+            in_string = not in_string
+            result.append(char)
+            continue
+        if in_string and char == "\n":
+            result.append("\\n")
+            continue
+        if in_string and char == "\r":
+            continue
+        if in_string and char == "\t":
+            result.append("\\t")
+            continue
+        result.append(char)
+
+    return "".join(result)
+
+
+def _decode_json_string_fragment(fragment: str) -> str:
+    """Decode a JSON string body that may already contain escape sequences."""
+    try:
+        return json.loads(f'"{fragment}"')
+    except json.JSONDecodeError:
+        return (
+            fragment.replace("\\n", "\n")
+            .replace("\\t", "\t")
+            .replace('\\"', '"')
+            .replace("\\\\", "\\")
+        )
+
+
+def parse_loose_json_object(payload: str) -> dict[str, str]:
+    """
+    Extract string key/value pairs from malformed JSON.
+
+    Handles multiline string values and unescaped quotes inside values.
+    """
+    result: dict[str, str] = {}
+    length = len(payload)
+    i = 0
+
+    while i < length:
+        if payload[i] != '"':
+            i += 1
+            continue
+
+        key_start = i + 1
+        key_end = payload.find('"', key_start)
+        if key_end == -1:
+            break
+        key = payload[key_start:key_end]
+
+        colon = payload.find(":", key_end)
+        if colon == -1:
+            break
+
+        j = colon + 1
+        while j < length and payload[j] in " \t\r\n":
+            j += 1
+        if j >= length or payload[j] != '"':
+            i = key_end + 1
+            continue
+
+        j += 1
+        value_chars: list[str] = []
+        parsed = False
+        while j < length:
+            ch = payload[j]
+            if ch == "\\":
+                if j + 1 < length:
+                    value_chars.append(ch)
+                    value_chars.append(payload[j + 1])
+                    j += 2
+                    continue
+            if ch == '"':
+                k = j + 1
+                while k < length and payload[k] in " \t\r\n":
+                    k += 1
+                if k < length and payload[k] in ",}":
+                    result[key] = _decode_json_string_fragment("".join(value_chars))
+                    i = j + 1
+                    parsed = True
+                    break
+                value_chars.append(ch)
+            else:
+                value_chars.append(ch)
+            j += 1
+
+        if not parsed:
+            break
+
+    return result
+
+
 def parse_model_json(text: str, model: type[T]) -> T:
     """Parse and validate JSON output from Gemini."""
     payload = extract_json_text(text)
-    return model.model_validate_json(payload)
+    errors: list[Exception] = []
+
+    for candidate in (payload, repair_json_newlines_in_strings(payload)):
+        try:
+            return model.model_validate_json(candidate)
+        except (ValidationError, json.JSONDecodeError, ValueError) as exc:
+            errors.append(exc)
+
+    loose = parse_loose_json_object(payload)
+    if loose:
+        try:
+            return model.model_validate(loose)
+        except ValidationError as exc:
+            errors.append(exc)
+
+    raise ValueError(errors[-1] if errors else "Could not parse model JSON")
 
 
 async def generate_json(prompt: str, model: type[T], retries: int = 3) -> T:

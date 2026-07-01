@@ -4,7 +4,7 @@ title: Geotagging Debate & Porcupine Gorge Hike
 excerpt: Tune in to the Take a Hike podcast for a geotagging debate and a guide to
   the Porcupine Gorge hike for your long weekend! Luen Warneke and Cherry Judge discuss
   sharing remote spots, plus tips for a 4-day trek near Hughenden.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=7BuWj3l2KAs
 spotify_url: https://open.spotify.com/episode/6gnf7FBOw4ppGyNkRoUNAO?si=_uotFVT7SzqdW1QRzZH3WA
 episode_file: Take a Hike - GeoTagging Debate and Porcupine Gorge Hike for your long
   weekend.mp3

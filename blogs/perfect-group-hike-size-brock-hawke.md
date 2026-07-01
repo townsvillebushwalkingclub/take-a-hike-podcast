@@ -4,7 +4,7 @@ title: Perfect Group Hike Size & Racing with Brock Hawke
 excerpt: Wondering what is the perfect number of people out on a group hike? We discuss
   ideal group sizes for safety and bonding, plus chat with Brock Hawke about extreme
   adventure racing from Charters Towers to New Zealand's Godzone.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=ue2Wu85GXVM
 spotify_url: https://open.spotify.com/episode/1XYVeAbZtSbSX1VECEeUYN
 episode_file: Take a Hike - What is the perfect number of people out on a group hike_
   Brock Ha.mp3

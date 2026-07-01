@@ -4,7 +4,7 @@ title: Family Friendly Hikes & Bush Toilet Etiquette
 excerpt: Looking for a family friendly hike? We explore a beautiful half-day loop
   at Big Crystal Creek in Paluma. Plus, the team tackles the awkward but essential
   topic of what to do if you have to do a number 2 while out on the trails.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=4QSN7axZhdU
 spotify_url: https://open.spotify.com/episode/2zFOxdX6cpQOic9NpxRWy1?si=WkZzaZMYS7OCMG8dIytnag
 episode_file: Take a Hike - A family friendly hike and what to do if you have to do
   a number 2.mp3

@@ -4,7 +4,7 @@ title: 'Explore the Bambaroo Track: Waterfalls and Giant Figs'
 excerpt: Join the Take A Hike team as they explore the Bambaroo Track near Townsville.
   Discover hidden waterfalls, massive fig trees, and historical remnants on this challenging
   climb.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=QacAMhQGSrs
 spotify_url: https://open.spotify.com/episode/1T7w5dg71z90gj7iPIk3it?si=ZynLwOi2RkuzHVn2MzNUPw
 episode_file: Take a hike and explore The Bambaroo Track.mp3
 blog_url: https://townsvillebushwalkingclub.com/take-a-hike-bambaroo-track/

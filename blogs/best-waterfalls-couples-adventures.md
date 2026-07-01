@@ -4,7 +4,7 @@ title: Best Waterfalls & Couples Adventures in North QLD
 excerpt: Tune into the Best Waterfalls and Couples Adventures with Luen Warneke, Cherry
   Judge, and special guest Jodie Rummer. From hiking Moochoopa Falls to escaping leeches
   at Mount Sorrow, discover Townsville's top trails and wild couple adventures.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=oQmONV88_vc
 spotify_url: https://open.spotify.com/episode/5xBtP7QTdPqUfdi2OGaT6Y
 episode_file: Take a Hike - Best Waterfalls and Couples Adventures.mp3
 blog_url: https://townsvillebushwalkingclub.com/best-waterfalls-couples-adventures/

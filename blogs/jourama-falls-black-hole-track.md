@@ -4,7 +4,7 @@ title: Exploring Jourama Falls and the Black Hole Track
 excerpt: Join the Take A Hike podcast team as they explore Jourama Falls, share tips
   for the challenging Black Hole Track, and discuss essential Leave No Trace principles
   for North Queensland hikers.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=Pb6ICLRQddo
 spotify_url: https://open.spotify.com/episode/2OiijFsQwgPlFmaP0fIS8D?si=ZiK3rQN3T7mzZMvAw_BJTw
 episode_file: Take a Hike to Jourama Falls and the Black Hole Track.mp3
 blog_url: https://townsvillebushwalkingclub.com/jourama-falls-black-hole-track/

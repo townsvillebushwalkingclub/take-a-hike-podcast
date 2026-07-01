@@ -15,7 +15,7 @@ The pipeline is split into eight independent scripts:
 5. **`remove_gemini_watermarks.py`** — Remove Gemini watermarks from sharing images using [gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) (optional)
 6. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
 7. **`create_videos.py`** — Create portrait videos using episode cover art from `images_clean/`
-8. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
+8. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos as unlisted
 
 Each script is resumable via `podcasts_data.json` and skips work that is already done. Transcript text is stored in files only — not duplicated in the JSON file.
 
@@ -239,7 +239,7 @@ Read the full blog post: {blog_url}
 {hashtags}
 ```
 
-The full transcript is **not** included in the YouTube description. Videos are uploaded as **public** and added to the **Take a Hike podcast** playlist (`YOUTUBE_PLAYLIST_ID`).
+The full transcript is **not** included in the YouTube description. Videos are uploaded as **unlisted** and added to the **Take a Hike podcast** playlist (`YOUTUBE_PLAYLIST_ID`).
 
 ### Name and term correction
 

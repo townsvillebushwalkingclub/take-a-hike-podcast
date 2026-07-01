@@ -3,7 +3,7 @@ slug: christmas-gift-guide
 title: Hikers Christmas Gift Guide and 2022 Wrap-Up
 excerpt: 'Find out what should be under your Christmas tree: Blair, Cherry and Luen
   share hiker gift ideas, gear tips and the best adventures of 2022 from North Queensland.'
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=i96g8Sw1tzo
 spotify_url: https://open.spotify.com/episode/2zruSIrEIeOKBJU054Paxj?si=zMlhhwFFSj-KpzKltEAOsA
 episode_file: Find out what SHOULD be under your Christmas Tree and the best adventures
   of 202.mp3

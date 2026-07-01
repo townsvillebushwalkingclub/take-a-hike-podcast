@@ -5,7 +5,7 @@ excerpt: Join Luen Warneke and Cherry Judge on the Take A Hike podcast to explor
   Crystal Creek falls in Paluma Range National Park. Discover Wilfred's Lookout, Torsten's
   Rock Garden, and get practical gear tips for this beginner-friendly 10km return
   walk.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=uLX10V9HAi4
 spotify_url: https://open.spotify.com/episode/0yMQ02k2fKthKccOcBoTJB?si=wVttqI3SQsixf8F5osCNXg
 episode_file: Take a Hike and explore Crystal Creek falls.mp3
 blog_url: https://townsvillebushwalkingclub.com/explore-crystal-creek-falls/

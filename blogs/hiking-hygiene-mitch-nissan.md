@@ -4,7 +4,7 @@ title: Hiking Hygiene & More with Mitch Nissan
 excerpt: Catch part two of our chat on Hiking Hygiene & More with Mitch Nissan! Luen
   Warneke shares Leave No Trace tips, plus Mitch discusses Clement State Forest, extreme
   races, and a wild leech encounter on Mount Bartle Frere.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=n8RSts2T220
 spotify_url: https://open.spotify.com/episode/2OAo0vtRuGgtTHfFDk0FCa?si=dejlX2avROiAaOvVkZHoMQ
 episode_file: Take a Hike - Hiking Hygiene & More with Mitch Nissan.mp3
 blog_url: https://townsvillebushwalkingclub.com/hiking-hygiene-mitch-nissan/

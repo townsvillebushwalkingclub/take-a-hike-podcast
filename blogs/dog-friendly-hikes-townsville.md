@@ -5,7 +5,7 @@ excerpt: Take a Hike and discover Dog-friendly adventures and walking tracks aro
   Townsville! Join Blair, Cherry Judge and Luen Warneke as they share top pet-friendly
   trails like Mount Louisa, Ross River, and weekend camping spots, plus essential
   tips.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=LWKa4bVdMWY
 spotify_url: https://open.spotify.com/episode/47wfz2VwpzKvaEzX7zgWg0
 episode_file: Take a Hike and discover Dog-friendly adventures and walking tracks
   around Towns.mp3

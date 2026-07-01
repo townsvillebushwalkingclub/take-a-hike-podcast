@@ -4,7 +4,7 @@ title: 'Explore Girringun National Park: Raspberry Falls & Mt Fox'
 excerpt: Looking for your next North Queensland adventure? Join the Take A Hike team
   as they discuss exploring the stunning Raspberry Falls and the volcanic crater of
   Mount Fox in Girringun National Park.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=Z1B5EKLoAYQ
 spotify_url: https://open.spotify.com/episode/75AY8n53rK4IpO2cdlYkZf?si=_B6txLAURIG-dt3kt1CLCA
 episode_file: Take a Hike to Girringun National Park, it has so many places to explore.mp3
 blog_url: https://townsvillebushwalkingclub.com/exploring-girringun-national-park-raspberry-falls-mount-fox/

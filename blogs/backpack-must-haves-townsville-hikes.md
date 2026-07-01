@@ -4,7 +4,7 @@ title: Backpack Must-Haves for North Queensland Hikes
 excerpt: Discover the MUST HAVES in your backpacks and the amazing reasons why you
   need them! Blair, Luen Warneke, and Cherry Judge share essential gear for Townsville
   hikes, from PLBs and snake bandages for Paluma trails to hydration and leech tips.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=er0CPiJkXO0
 spotify_url: https://open.spotify.com/episode/7o4X6DZKKijJD0V3HCSWiT
 episode_file: Take a Hike - The MUST HAVES in your backpacks and the amazing reasons
   why.mp3

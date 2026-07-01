@@ -77,7 +77,7 @@ def upload_video(
     hashtags: str = "",
     credentials_path: Optional[Path] = None,
 ) -> Optional[str]:
-    """Upload a video to YouTube as public."""
+    """Upload a video to YouTube as unlisted."""
     service = authenticate_youtube(credentials_path)
     print(f"Uploading to YouTube: {title}...")
 
@@ -89,7 +89,7 @@ def upload_video(
             "tags": parse_hashtag_tags(hashtags),
         },
         "status": {
-            "privacyStatus": "public",
+            "privacyStatus": "unlisted",
         },
     }
 

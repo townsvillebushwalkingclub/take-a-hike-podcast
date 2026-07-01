@@ -38,11 +38,12 @@ Requirements:
 - summary: 2-4 paragraph intro that hooks viewers and covers key topics (do not paste the transcript)
 - hashtags: 10-15 relevant hashtags, space-separated, each starting with #
 - Do not include episode numbers in the title (no "Episode 5", "Ep. 12", etc.)
+- Return valid JSON only: escape double quotes inside strings, and use \\n for paragraph breaks in summary (no literal line breaks inside JSON strings)
 - {name_note}
 - {text_note}
 
 Respond with JSON only in this exact shape:
-{{"title": "Example Title", "summary": "Intro paragraphs...", "hashtags": "#TakeAHike #Hiking ..."}}
+{{"title": "Example Title", "summary": "Paragraph one.\\n\\nParagraph two.", "hashtags": "#TakeAHike #Hiking ..."}}
 """
 
 
@@ -223,6 +224,9 @@ def main() -> int:
                 playlist_id=playlist_id,
                 force=args.force,
             )
+        except KeyboardInterrupt:
+            save_state(state)
+            raise
         except Exception as exc:
             print(f"Error uploading {episode_filename}: {exc}")
             save_state(state)

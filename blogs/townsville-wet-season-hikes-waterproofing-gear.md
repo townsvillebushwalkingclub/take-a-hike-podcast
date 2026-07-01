@@ -5,7 +5,7 @@ excerpt: Make the most of your Townsville wet season hikes with this guide! Lear
   what to pack, how to waterproof your gear, and discover wet season adventures like
   tubing at Rolling Stone Creek or off-track navigating at Saddle Creek and Dolby
   Creek.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=jBqJC6i3xgQ
 spotify_url: https://open.spotify.com/episode/1gNmIajcNKaubH6kbrqCBX
 episode_file: Take a Hike - Make the Most of Your Townsville Wet Season Hikes, What
   to Pack an.mp3

@@ -4,7 +4,7 @@ title: 'Taking on Mt Halifax: The Ultimate North Queensland Hike'
 excerpt: Join Cherry Judge and Luen Warneke on the Take a Hike podcast as they explore
   the challenging and rewarding trek up Mt Halifax in Paluma Range National Park,
   featuring rope climbs, stunning waterfalls, and breathtaking summit views.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=86hE0aMqmo8
 spotify_url: https://open.spotify.com/episode/3RpIOBH9NQy0j80gIzxkxu?si=WvVhr2k-RSOXWPi1Ddxb_g
 episode_file: Take a Hike to Mt Halifax.mp3
 blog_url: https://townsvillebushwalkingclub.com/take-a-hike-mt-halifax/
