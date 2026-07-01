@@ -4,7 +4,7 @@ title: Snake 101 & The Dalrymple Gap Guide
 excerpt: Join Blair, Luen Warneke, and Cherry Judge for Snake 101 & The Dalrymple
   Gap. We discuss a wild python encounter in Behana Gorge, share essential snake safety
   tips, and explore the historic 10km Dalrymple Gap walking track south of Cardwell.
-youtube_url: PLACEHOLDER_YOUTUBE_URL
+youtube_url: https://www.youtube.com/watch?v=lj66BLxgo8Q
 spotify_url: https://open.spotify.com/episode/1f52cRAsojJfLd5eCNDOCN
 episode_file: Take a Hike - Snake 101 & The Dalrymple Gap.mp3
 blog_url: https://townsvillebushwalkingclub.com/snake-101-dalrymple-gap/
