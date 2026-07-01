@@ -24,6 +24,8 @@ from lib.state import get_episode, load_state, save_state
 
 import re
 
+MAX_STYLE_REFERENCE_COVERS = 10
+
 def remove_listnr(text: str) -> str:
     """Remove the word 'LiSTNR' (case-insensitive) from the input text."""
     return re.sub(r"\bLiSTNR\b", "", text, flags=re.IGNORECASE)
@@ -260,8 +262,19 @@ def main() -> int:
             return 0
 
         print(f"\nGenerating {len(pending_jobs)} cover(s) in one conversation...")
-        if existing_covers:
-            print(f"  Seeding chat with {len(existing_covers)} existing cover(s) for style reference")
+        style_reference_covers = existing_covers[:MAX_STYLE_REFERENCE_COVERS]
+        if style_reference_covers:
+            total = len(existing_covers)
+            if total > MAX_STYLE_REFERENCE_COVERS:
+                print(
+                    f"  Seeding chat with {len(style_reference_covers)} existing cover(s) "
+                    f"for style reference (using {MAX_STYLE_REFERENCE_COVERS} of {total})"
+                )
+            else:
+                print(
+                    f"  Seeding chat with {len(style_reference_covers)} existing cover(s) "
+                    "for style reference"
+                )
         print(f"  Model: {GEMINI_IMAGE_MODEL}")
         print(f"  Template: {args.template.name}")
         print(f"  Club logo: {args.club_logo.name}\n")
@@ -271,7 +284,7 @@ def main() -> int:
             template_image=args.template,
             reference_images=[args.club_logo],
             output_dir=args.output_dir,
-            existing_covers=existing_covers or None,
+            existing_covers=style_reference_covers or None,
         )
 
         results_by_slug = {slug: (rel_path, saved_path, error) for slug, rel_path, saved_path, error in results}
