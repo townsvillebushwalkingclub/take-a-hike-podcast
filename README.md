@@ -14,7 +14,7 @@ The pipeline is split into eight independent scripts:
 4. **`generate_blog_image.py`** — Generate episode-specific sharing images via Gemini Nano Banana (optional)
 5. **`remove_gemini_watermarks.py`** — Remove Gemini watermarks from sharing images using [gemini-watermark-remover](https://github.com/GargantuaX/gemini-watermark-remover) (optional)
 6. **`upload_spotify.py`** — Generate Spotify descriptions and upload audio via [Playwright](https://playwright.dev/python/) (Spotify for Creators has no upload API)
-7. **`create_videos.py`** — Create portrait videos for social media
+7. **`create_videos.py`** — Create portrait videos using episode cover art from `images_clean/`
 8. **`upload_youtube.py`** — Generate YouTube descriptions and upload videos publicly
 
 Each script is resumable via `podcasts_data.json` and skips work that is already done. Transcript text is stored in files only — not duplicated in the JSON file.
@@ -47,7 +47,7 @@ take-a-hike-podcast/
 ├── requirements.txt
 ├── package.json            # Node deps for remove_gemini_watermarks.py
 ├── spotify-cookies.json    # Session cookies (gitignored; export from browser)
-├── TAH_Podcast_Graphics.jpg  # Podcast graphic (video creation)
+├── TAH_Podcast_Graphics.jpg  # Legacy podcast graphic (no longer used for videos)
 ├── TAH_Podcast_Cover.jpg  # Cover template for generate_blog_image.py
 └── townsville-bushwalking-club-logo.png  # Club logo passed to cover image generation
 ```
@@ -126,7 +126,10 @@ If uploads fail with cookie errors, re-export `spotify-cookies.json` or run with
 2. Enable YouTube Data API v3
 3. Create OAuth 2.0 credentials (Desktop app type)
 4. Download and save as `client_secret.json` in the project root
-5. On first upload, the script opens a browser for authentication
+5. Set `YOUTUBE_PLAYLIST_ID` in `.env` (default: Take a Hike podcast playlist)
+6. On first upload, the script opens a browser for authentication
+
+If you previously authenticated with upload-only scope, delete `youtube_token.json` and re-run so playlist access is granted.
 
 ## Usage
 
@@ -139,11 +142,11 @@ python generate_blog.py
 python generate_blog_image.py   # optional: generate all missing 1200x630 sharing images
 python remove_gemini_watermarks.py   # optional: strip Gemini watermarks from sharing images
 python upload_spotify.py
-python create_videos.py
+python create_videos.py          # portrait videos using images_clean/ cover art
 python upload_youtube.py
 ```
 
-`create_videos.py` can run in parallel with earlier steps since it only needs the audio files.
+`create_videos.py` builds one portrait `.mp4` per episode in `videos/`, using the watermark-free cover from `images_clean/` (falls back to `images/` if needed). Run `generate_blog_image.py` and `remove_gemini_watermarks.py` first.
 
 Each script supports `--force` to redo its step. `upload_spotify.py` accepts `--no-headless` for debugging. `upload_youtube.py` accepts `--youtube-credentials PATH`.
 
@@ -226,22 +229,17 @@ Gemini generates the title and summary; the blog slug URL is included in every d
 
 ### YouTube Descriptions
 
-Built programmatically in this structure:
+Gemini generates a title and summary from the transcript. The description is saved to `podcasts_data.json` as `youtube_title` and `youtube_description` (reused on retry). Built in this structure:
 
 ```text
 {AI summary/intro}
 
 Read the full blog post: {blog_url}
 
----
-
-Full Transcript:
-{full transcript}
-
 {hashtags}
 ```
 
-Videos are uploaded as **public**.
+The full transcript is **not** included in the YouTube description. Videos are uploaded as **public** and added to the **Take a Hike podcast** playlist (`YOUTUBE_PLAYLIST_ID`).
 
 ### Name and term correction
 
@@ -284,7 +282,7 @@ Blog, Spotify, and YouTube scripts still apply `clean_text()` to AI-generated ti
 - **"spotify-cookies.json not found"** → Export cookies while logged in to creators.spotify.com
 - **Spotify upload fails / times out** → Re-export cookies; try `python upload_spotify.py --no-headless`
 - **"YouTube credentials not found"** → Download OAuth credentials and save as `client_secret.json`
-- **Video creation fails** → Verify `TAH_Podcast_Graphics.jpg` exists and audio files are valid MP3
+- **Video creation fails** → Run `generate_blog_image.py` and `remove_gemini_watermarks.py` first; verify audio files are valid MP3
 - **"gemini-watermark-remover is not installed"** → Run `npm install` in the project root (requires Node.js)
 - **Upload fails** → Check daily YouTube limits, verify YouTube Data API v3 is enabled
 - **Whisper MemoryError on large-v3** → Close other apps, ensure ~8GB+ free RAM, or use `WHISPER_MODEL=medium`

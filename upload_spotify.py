@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from lib.blog import read_blog_frontmatter, update_blog_spotify_url
 from lib.config import AUDIO_DIR, BLOG_IMAGES_CLEAN_DIR, PROJECT_ROOT, ensure_directories
 from lib.gemini_client import generate_json_sync
+from lib.images import resolve_episode_art
 from lib.names import NAME_PROMPT_NOTE
 from lib.spotify import (
     find_published_episode_url,
@@ -59,34 +60,7 @@ def build_description(summary: str, blog_url: str) -> str:
 
 def resolve_spotify_episode_art(episode: dict) -> Path:
     """Return watermark-free episode art from images_clean, or the original sharing image."""
-    sharing = episode.get("sharing_image_file", "").strip()
-    if not sharing:
-        slug = episode.get("blog_slug", "").strip()
-        if slug:
-            inferred = f"images/{slug}-sharing.jpg"
-            if (PROJECT_ROOT / inferred).is_file():
-                sharing = inferred
-                episode["sharing_image_file"] = sharing
-    if not sharing:
-        raise FileNotFoundError(
-            "No sharing_image_file in state. Run generate_blog_image.py first."
-        )
-
-    clean_path = BLOG_IMAGES_CLEAN_DIR / Path(sharing).name
-    if clean_path.is_file():
-        return clean_path
-
-    original_path = PROJECT_ROOT / sharing
-    if original_path.is_file():
-        print(
-            f"Warning: {clean_path.name} not found in images_clean/, "
-            f"using watermarked image from {sharing}"
-        )
-        return original_path
-
-    raise FileNotFoundError(
-        f"Episode art not found: {clean_path} (run remove_gemini_watermarks.py)"
-    )
+    return resolve_episode_art(episode, prefer_clean=True)
 
 
 def resolve_spotify_metadata(

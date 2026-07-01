@@ -1,29 +1,26 @@
 #!/usr/bin/env python3
-"""Create portrait videos from podcast audio and the podcast graphic."""
+"""Create portrait videos from podcast audio and episode cover art."""
 
 import argparse
 import sys
+import tempfile
 from pathlib import Path
 
 from moviepy import AudioFileClip, CompositeVideoClip, ImageClip
 from PIL import Image
 
-from lib.config import (
-    AUDIO_DIR,
-    GRAPHIC_FILE,
-    VIDEOS_DIR,
-    ensure_directories,
-    video_path_for_episode,
-)
-from lib.state import list_audio_episodes
+from lib.config import AUDIO_DIR, VIDEOS_DIR, ensure_directories, video_path_for_episode
+from lib.images import resolve_episode_art
+from lib.state import get_episode, list_audio_episodes, load_state, save_state
 
 
-def create_video(audio_path: Path, output_path: Path) -> None:
-    """Create a portrait video from audio and the podcast graphic."""
+def create_video(audio_path: Path, output_path: Path, background_image: Path) -> None:
+    """Create a portrait video from audio and an episode cover image."""
     print(f"Creating video: {output_path.name}...")
+    print(f"  Background: {background_image.name}")
 
-    if not GRAPHIC_FILE.exists():
-        raise FileNotFoundError(f"Graphic file not found: {GRAPHIC_FILE}")
+    if not background_image.exists():
+        raise FileNotFoundError(f"Background image not found: {background_image}")
 
     audio_clip = AudioFileClip(str(audio_path))
     duration = audio_clip.duration
@@ -31,7 +28,7 @@ def create_video(audio_path: Path, output_path: Path) -> None:
     target_width = 1080
     target_height = 1920
 
-    img = Image.open(GRAPHIC_FILE)
+    img = Image.open(background_image)
     img_width, img_height = img.size
 
     scale_w = target_width / img_width
@@ -46,44 +43,46 @@ def create_video(audio_path: Path, output_path: Path) -> None:
     top = (new_height - target_height) // 2
     cropped_img = resized_img.crop((left, top, left + target_width, top + target_height))
 
-    temp_image_path = Path("temp_portrait.jpg")
-    cropped_img.save(temp_image_path, quality=95)
-
-    video_clip = ImageClip(str(temp_image_path), duration=duration)
-    video_clip = video_clip.resized(new_size=(target_width, target_height))
-
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_file:
+        temp_image_path = Path(temp_file.name)
     try:
-        final_clip = CompositeVideoClip([video_clip], duration=duration)
-        final_clip = final_clip.with_audio(audio_clip)
-    except (AttributeError, TypeError):
+        cropped_img.save(temp_image_path, quality=95)
+
+        video_clip = ImageClip(str(temp_image_path), duration=duration)
+        video_clip = video_clip.resized(new_size=(target_width, target_height))
+
         try:
-            final_clip = video_clip.with_audio(audio_clip)
-        except AttributeError:
-            final_clip = CompositeVideoClip([video_clip])
+            final_clip = CompositeVideoClip([video_clip], duration=duration)
             final_clip = final_clip.with_audio(audio_clip)
+        except (AttributeError, TypeError):
+            try:
+                final_clip = video_clip.with_audio(audio_clip)
+            except AttributeError:
+                final_clip = CompositeVideoClip([video_clip])
+                final_clip = final_clip.with_audio(audio_clip)
 
-    final_clip.write_videofile(
-        str(output_path),
-        codec="libx264",
-        audio_codec="aac",
-        fps=30,
-        preset="medium",
-        bitrate="5000k",
-        threads=4,
-        logger="bar",
-    )
+        final_clip.write_videofile(
+            str(output_path),
+            codec="libx264",
+            audio_codec="aac",
+            fps=30,
+            preset="medium",
+            bitrate="5000k",
+            threads=4,
+            logger="bar",
+        )
 
-    audio_clip.close()
-    video_clip.close()
-    final_clip.close()
-
-    if temp_image_path.exists():
-        temp_image_path.unlink()
+        audio_clip.close()
+        video_clip.close()
+        final_clip.close()
+    finally:
+        if temp_image_path.exists():
+            temp_image_path.unlink()
 
     print(f"Video created: {output_path}")
 
 
-def process_episode(episode_filename: str, force: bool = False) -> None:
+def process_episode(episode_filename: str, state: dict, force: bool = False) -> None:
     """Create a video for one episode if needed."""
     audio_path = AUDIO_DIR / episode_filename
     video_path = video_path_for_episode(episode_filename)
@@ -96,11 +95,20 @@ def process_episode(episode_filename: str, force: bool = False) -> None:
         print(f"Skipping {episode_filename} - audio file not found")
         return
 
-    create_video(audio_path, video_path)
+    episode = get_episode(state, episode_filename)
+    background_image = resolve_episode_art(episode, prefer_clean=True)
+    save_state(state)
+
+    create_video(audio_path, video_path, background_image)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create portrait videos for podcast episodes")
+    parser.add_argument(
+        "episode",
+        nargs="?",
+        help="Episode MP3 filename (default: process all episodes in audio/)",
+    )
     parser.add_argument(
         "--force",
         action="store_true",
@@ -109,17 +117,21 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_directories()
-    episodes = list_audio_episodes()
+    if args.episode:
+        episodes = [args.episode]
+    else:
+        episodes = list_audio_episodes()
     if not episodes:
         print(f"No MP3 files found in {AUDIO_DIR}/")
         return 0
 
+    state = load_state()
     print(f"Found {len(episodes)} podcast episodes\n")
 
     for index, episode_filename in enumerate(episodes, start=1):
         print(f"{index}/{len(episodes)} {episode_filename}")
         try:
-            process_episode(episode_filename, force=args.force)
+            process_episode(episode_filename, state, force=args.force)
         except Exception as exc:
             print(f"Error creating video for {episode_filename}: {exc}")
             continue

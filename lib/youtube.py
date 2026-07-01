@@ -1,5 +1,6 @@
-"""YouTube OAuth authentication and video upload."""
+"""YouTube OAuth authentication, video upload, and playlist management."""
 
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -7,6 +8,7 @@ import google.auth.transport.requests
 import google.oauth2.credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 from lib.config import YOUTUBE_CREDENTIALS_FILE, YOUTUBE_SCOPES, YOUTUBE_TOKEN_FILE
@@ -63,6 +65,11 @@ def parse_hashtag_tags(hashtags: str) -> list[str]:
     return tags[:30]
 
 
+def extract_hashtags_from_description(description: str) -> str:
+    """Return space-separated hashtags found in a description."""
+    return " ".join(re.findall(r"#\S+", description))
+
+
 def upload_video(
     video_path: Path,
     title: str,
@@ -106,3 +113,38 @@ def upload_video(
 
     print("Upload failed - no video ID in response")
     return None
+
+
+def add_video_to_playlist(
+    video_id: str,
+    playlist_id: str,
+    *,
+    credentials_path: Optional[Path] = None,
+) -> None:
+    """Add an uploaded video to a YouTube playlist."""
+    if not playlist_id:
+        return
+
+    service = authenticate_youtube(credentials_path)
+    try:
+        service.playlistItems().insert(
+            part="snippet",
+            body={
+                "snippet": {
+                    "playlistId": playlist_id,
+                    "resourceId": {
+                        "kind": "youtube#video",
+                        "videoId": video_id,
+                    },
+                }
+            },
+        ).execute()
+        print(f"Added to playlist: {playlist_id}")
+    except HttpError as exc:
+        content = str(exc)
+        if exc.resp.status in (400, 409) and (
+            "videoAlreadyInPlaylist" in content or "duplicate" in content.lower()
+        ):
+            print(f"Video already in playlist: {playlist_id}")
+            return
+        raise RuntimeError(f"Failed to add video to playlist {playlist_id}: {exc}") from exc
